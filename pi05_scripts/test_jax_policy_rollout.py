@@ -43,7 +43,7 @@ def main():
     from domain_randomization import AppearanceRandomizer
     from full_domain_config import sample_config
     cfg=sample_config(ROOT/'configs/scene.yaml',a.output_dir,a.seed,yaw_range=90.,randomize_contact=False)
-    cfg_data=yaml.safe_load(Path(cfg).read_text())
+    cfg_data=relocate_paths(yaml.safe_load(Path(cfg).read_text()))
     if a.known_round:
         cfg_data=relocate_paths(yaml.safe_load((a.known_round/'run/scene.yaml').read_text()))
         for box in cfg_data['boxes']:
@@ -55,7 +55,9 @@ def main():
         nominal=yaml.safe_load((ROOT/'configs/scene.yaml').read_text())
         cfg_data['cameras']=nominal['cameras']
         cfg_data['wrist_camera']=nominal['wrist_camera']
-    cfg_data['domain_randomization']={'enabled':True}
+    # Keep camera, robot, lighting, textures, and physics fixed; only ThreeBagRound
+    # samples object positions and yaws.
+    cfg_data['domain_randomization']={'enabled':False}
     rigid_cfg=a.output_dir/'rigid_eval.yaml'
     rigid_cfg.write_text(yaml.safe_dump(cfg_data,sort_keys=False));cfg=rigid_cfg
     dataset_path=(a.known_round/'dataset') if a.known_round else Path(os.environ.get('SIM494_DATASET', str(SUCCESS)))
@@ -64,7 +66,7 @@ def main():
         env.settle_seconds=0.0
     home=env.episode_start_states()[0]
     region=env.config['box_randomization']['region_xy_cm_from_left_bottom']
-    manager=ThreeBagRound(env,np.random.default_rng(a.seed),region,90.,home,AppearanceRandomizer(env))
+    manager=ThreeBagRound(env,np.random.default_rng(a.seed),region,90.,home,None)
     if not a.known_round:
         _,_,_,info=manager.begin_pick();obs=env.observation()
     if a.known_round:

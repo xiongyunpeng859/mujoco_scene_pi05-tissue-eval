@@ -49,3 +49,14 @@ bash run_many_eval_cloud.sh "$HOME/artifacts/rounds" "$HOME/eval_many" 20
 ```
 
 The third argument is an optional maximum number of scenes; use `0` to evaluate all scenes. Each scene gets its own output directory and `summary.tsv` records completed runs and final success.
+
+## Random object-placement evaluation
+
+For performance testing, use random episodes rather than fixed recorded rounds. This keeps the camera, robot, lighting, textures, and physics fixed; only the three tissue-pack positions and yaws are sampled. The 494-episode dataset is used only for the distribution of initial robot states.
+
+```bash
+source cloud_env.sh
+bash run_random_eval_cloud.sh 20 "$HOME/eval_random"
+```
+
+Each episode uses a deterministic seed and writes its own video, trace, and `result.json`; `summary.tsv` reports the aggregate result. Set `SIM494_DATASET` to the uploaded 494-episode dataset before running.
