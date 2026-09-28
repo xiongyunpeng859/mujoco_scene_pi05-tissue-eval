@@ -8,6 +8,7 @@ import yaml
 _REPO_ROOT=Path(__file__).resolve().parents[1]
 ROOT=_REPO_ROOT/'mujoco_tissue_scene' if (_REPO_ROOT/'mujoco_tissue_scene').is_dir() else Path(__file__).resolve().parent
 PROJECT=Path(__import__('os').environ.get('PI05_PROJECT_ROOT', str(Path(__file__).resolve().parents[1])))
+sys.path.insert(0, str(ROOT))
 CHECKPOINT=Path(os.environ.get('CHECKPOINT', '/tmp/checkpoint'))
 
 def main():
@@ -38,7 +39,7 @@ def main():
                 if new: value=value.replace(old, new)
         return value
     sys.path.insert(0,str(ROOT/'reports/tools'))
-    from scripted_pick_place import SUCCESS
+    from domain_randomization import AppearanceRandomizer
     from three_bag_round import ThreeBagRound
     if a.known_round:
         cfg_data=relocate_paths(yaml.safe_load((a.known_round/'run/scene.yaml').read_text()))
@@ -50,8 +51,10 @@ def main():
         for box in cfg_data['boxes']:
             if box.get('wrapper_visual'):
                 box['wrapper_visual']['texture']=str((a.known_round/Path(box['wrapper_visual']['texture']).name).resolve())
-    for box in cfg_data['boxes']:
-        box['soft_body']=not a.rigid
+    if a.rigid:
+        for box in cfg_data['boxes']:
+            box['soft_body']=False
+    cfg_data.setdefault('reset', {})['joint_jitter_rad']=0.0
     if a.nominal_cameras:
         nominal=yaml.safe_load((ROOT/'configs/scene.yaml').read_text())
         cfg_data['cameras']=nominal['cameras']
@@ -61,12 +64,18 @@ def main():
     cfg_data['domain_randomization']={'enabled':False}
     rigid_cfg=a.output_dir/'rigid_eval.yaml'
     rigid_cfg.write_text(yaml.safe_dump(cfg_data,sort_keys=False));cfg=rigid_cfg
-    dataset_path=(a.known_round/'dataset') if a.known_round else Path(os.environ.get('SIM494_DATASET', str(SUCCESS)))
+    dataset_path=(a.known_round/'dataset') if a.known_round else Path(os.environ.get('SIM494_DATASET', str(PROJECT/'artifacts/dataset')))
+    if not a.known_round and not (dataset_path/'data').is_dir():
+        raise FileNotFoundError('Set SIM494_DATASET to the reference dataset (data/ only is sufficient for initial robot state).')
     env=TissueSceneEnv(config_path=cfg,dataset=dataset_path,render=True,seed=a.seed,output_dir=a.output_dir)
     if a.known_round:
         env.settle_seconds=0.0
     home=env.episode_start_states()[0]
     region=env.config['box_randomization']['region_xy_cm_from_left_bottom']
+    # Keep the complete object footprint on the table and left of the tray.
+    radius_cm=max(np.linalg.norm(b['size'][:2])*50 for b in env.config['boxes'])
+    region['x']=[max(region['x'][0],radius_cm+1),min(region['x'][1],env.config['box_randomization']['tray_left_edge_cm']-radius_cm-1)]
+    region['y']=[max(region['y'][0],radius_cm+1),min(region['y'][1],env.config['table']['size'][1]*100-radius_cm-1)]
     yaw_jitter=float(cfg_data.get('box_randomization', {}).get('yaw_jitter_deg', 25.0))
     manager=ThreeBagRound(env,np.random.default_rng(a.seed),region,yaw_jitter,home,None)
     if not a.known_round:
@@ -107,6 +116,13 @@ def main():
             if not line:raise RuntimeError('Policy worker exited; see policy.log')
             if line.startswith('PACKET '):return json.loads(line[7:])
     receive()
+    import atexit
+    def cleanup_worker():
+        if worker.poll() is None:
+            worker.terminate()
+            try: worker.wait(timeout=10)
+            except subprocess.TimeoutExpired: worker.kill(); worker.wait()
+    atexit.register(cleanup_worker)
     # Same canonical keys as the deployment server; no scripted action is used.
     def infer(o):
         packet=a.output_dir/'observation.npz'
@@ -158,7 +174,7 @@ def main():
         for f in frames:vw.write(cv2.cvtColor(f,cv2.COLOR_RGB2BGR))
         vw.release()
     result={'checkpoint':str(a.checkpoint),'ticks':a.ticks,'seed':a.seed,'policy':'jax_pi05_sim494',
-      'known_round':str(a.known_round),'initial_joint_state_exact':bool(a.known_round),
+      'randomization':'recorded' if a.known_round else 'object_xy_yaw_only','spawn_region_cm':region,'yaw_range_deg':[-yaw_jitter,yaw_jitter], 'known_round':str(a.known_round),'initial_joint_state_exact':bool(a.known_round),
       'teacher_prefix':a.teacher_prefix,
       'nominal_cameras':a.nominal_cameras,
       'peak_lift_m':{name:float(max(r['centers'][name][2]-center[2] for r in trace)) for name,center in initial_centers.items()},
@@ -174,7 +190,7 @@ def main():
     worker.stdin.close();worker.wait(timeout=30)
 
 def policy_worker(checkpoint):
-    sys.path.insert(0,str(PROJECT/'scripts'))
+    sys.path.insert(0,str(PROJECT/'pi05_scripts'))
     import train_o10_sim494_chunked as pipeline
     from openpi.policies.policy_config import create_trained_policy
     policy=create_trained_policy(pipeline.make_config(),checkpoint)
