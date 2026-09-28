@@ -1,0 +1,100 @@
+# All dimensions/poses below are estimates from the photograph, NOT calibrated.
+# Coordinate convention:
+# - MuJoCo world XY origin is the table center.
+# - The optional measured_layout block uses the real tabletop left-bottom corner
+#   as (0 cm, 0 cm), looking from the central camera image/front edge.
+# - scene.py converts measured_layout centimeter coordinates into world meters.
+table:
+  size: [1.20, 0.75, 0.04]
+  surface_z: 0.75
+measured_layout:
+  enabled: true
+  # Real tabletop length/width measured by the user.
+  table_size_cm: [120.0, 75.0]
+  # Real arm base center measured from the tabletop left-bottom corner.
+  arm_mount_xy_cm_from_left_bottom: [25.0, 10.0]
+  # Real green tray/box lower-left corner and size measured from the same origin.
+  tray_lower_left_xy_cm_from_left_bottom: [63.0, 30.0]
+  tray_size_cm: [21.0, 20.0]
+  notes:
+    - "25cm,10cm is confirmed as the arm base center, not the hand."
+    - "63cm,30cm is the green tray lower-left corner, not its center."
+tray:
+  center: [0.28, -0.08]
+  size: [0.21, 0.20, 0.045]
+  wall_thickness: 0.008
+boxes:
+  # The photograph shows the target already inside the tray.
+  # Light blue tissue bags; 50g is a provisional simulation mass, not measured.
+  - {name: target, position: [0.25, -0.07], size: [0.12, 0.095, 0.065], mass: 0.05, yaw: 0.03}
+  - {name: distractor_left, position: [-0.34, 0.28], size: [0.12, 0.095, 0.065], mass: 0.05, yaw: -0.22}
+  - {name: distractor_right, position: [-0.12, 0.28], size: [0.10, 0.095, 0.085], mass: 0.05, yaw: 0.10}
+friction: [0.8, 0.005, 0.0001]
+cameras:
+  central:
+    # The 214-episode tissue dataset's matching record/infer configs use this
+    # UVC camera, not the D435 used by the separate dual-arm parcel task.
+    source: uvc_uncalibrated
+    device: LRCP 500W
+    serial: SN0001
+    resolution: [640, 480]
+    fps: 30
+    position: [0.02, -0.78, 1.65]
+    target: [0.0, 0.10, 0.77]
+    # Provisional until a checkerboard calibration supplies fx/fy/cx/cy.
+    fovy: 52
+    intrinsics_calibrated: false
+    extrinsics_calibrated: false
+  overview: {position: [1.15, -1.25, 1.75], target: [0.0, 0.05, 0.77], fovy: 45}
+arm:
+  # Vendor Qiuzhi play_e2 arm model; stock parallel gripper is removed.
+  # Exact hardware variant and hand adapter need measurement before policy tests.
+  urdf: /workspace/shared/o10-openpi-demo/arm-hand-teleop-o10-openpi-demo-stable/qiuzhi/lerobot_play_1.0.4/x86/noble/lerobot_play-1.0.4-py3-none-any/lerobot_play/urdf/play_e2/urdf/play_e2.urdf
+  mesh_dir: /workspace/shared/o10-openpi-demo/arm-hand-teleop-o10-openpi-demo-stable/qiuzhi/lerobot_play_1.0.4/x86/noble/lerobot_play-1.0.4-py3-none-any/lerobot_play/urdf/play_e2/meshes
+  # Left-front tabletop location indicated by the user's red circle.
+  position: [-0.30, -0.34, 0.75]
+  # Orient base-to-hand along table +Y (up/down in the central view).
+  euler: [0.0, 0.0, 1.3677924]
+  # Base placement remains estimated; joint initial state comes from real data.
+  # Recorded episode 0 first-frame arm state; replaces synthetic preview posture.
+  initial_qpos: [0.0188830402, 0.0013351644, -0.0051499200, 0.0040054931, 0.0020981156, -0.0009536889]
+  hand_mount_position: [0.0, 0.0, 0.0955]
+  # Native hand thickness +X aligns with flange +Y (down at real rest).
+  hand_mount_euler: [0.0, 0.0, 1.5707963267948966]
+hand:
+  # Actual SDK geometry; binary real gestures, attached to arm flange.
+  urdf: /workspace/shared/o10-openpi-demo/arm-hand-teleop-o10-openpi-demo-stable/yudie/vendor_sdk/Omnihand-2025-SDK-dev_xuqigui/assets/urdf/omnihand_left.urdf
+  mesh_dir: /workspace/shared/o10-openpi-demo/arm-hand-teleop-o10-openpi-demo-stable/yudie/vendor_sdk/Omnihand-2025-SDK-dev_xuqigui/assets/meshes
+  position: [-0.48, -0.21, 0.86]
+  euler: [-1.5707963, 0.0, -0.15]
+wrist_camera:
+  # Under-palm mounting inferred from real wrist video and hardware photograph.
+  # MuJoCo camera optical axis is local -Z, local +Y is image up.
+  parent_body: static_omnihand_reference
+  # Hand local +X is the palm thickness direction, +Z is distal.
+  # Compact housing under proximal palm, not offset sideways outside the hand.
+  # Hand-local coordinates, not flange or world coordinates: proximal palm below.
+  position: [0.048, -0.02, 0.0445]
+  # Aim forward with a small tilt back toward the palm, not away from fingers.
+  # Image right=-hand Y (finger spread), image up toward palm normal -X.
+  # Optical direction is mostly distal +Z, tilted toward the palm.
+  xyaxes: [0.0, -1.0, 0.0, -0.9422223407, 0.0, -0.3349881502]
+  bracket_anchor: [0.029, -0.02, 0.0225]
+  fovy: 65
+  intrinsics:
+    source: realsense_factory_profile_readonly
+    serial: '260322276846'
+    resolution: [640, 480]
+    fps: 30
+    fx: 394.432373046875
+    fy: 393.42352294921875
+    cx: 318.9329528808594
+    cy: 250.69923400878906
+    distortion_model: inverse_brown_conrady
+    distortion_coefficients: [-0.05362861976027489, 0.05759269371628761, 0.0004462862270884216, -0.00012703091488219798, -0.019203532487154007]
+    # Native renderer is pinhole; distortion is recorded, NOT applied yet.
+  intrinsics_calibrated: true
+  # This is the missing hand-eye quantity. The pose above is only a visual
+  # estimate and must not be presented as a measured T_eef_camera.
+  hand_eye_calibrated: false
+  # Output is rendered directly, with NO 180-degree image rotation.

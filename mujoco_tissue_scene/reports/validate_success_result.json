@@ -1,0 +1,50 @@
+[
+  {
+    "episode": 0,
+    "peak": 0.1405,
+    "grasped": true,
+    "in_tray": false,
+    "nearest": 0.1346,
+    "bags": 2
+  },
+  {
+    "episode": 1,
+    "peak": 0.0814,
+    "grasped": true,
+    "in_tray": true,
+    "nearest": 0.2316,
+    "bags": 2
+  },
+  {
+    "episode": 2,
+    "peak": 0.0175,
+    "grasped": false,
+    "in_tray": true,
+    "nearest": null,
+    "bags": 2
+  },
+  {
+    "episode": 3,
+    "peak": 0.1123,
+    "grasped": true,
+    "in_tray": false,
+    "nearest": 0.432,
+    "bags": 1
+  },
+  {
+    "episode": 4,
+    "peak": 0.1425,
+    "grasped": true,
+    "in_tray": true,
+    "nearest": 0.1699,
+    "bags": 2
+  },
+  {
+    "episode": 5,
+    "peak": 0.02,
+    "grasped": false,
+    "in_tray": true,
+    "nearest": null,
+    "bags": 1
+  }
+]

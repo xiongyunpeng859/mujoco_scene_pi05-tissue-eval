@@ -1,0 +1,154 @@
+﻿{
+  "frame": "/tmp/now_bags.png",
+  "table_size_cm": [
+    120.0,
+    75.0
+  ],
+  "bag_size_cm": [
+    0.12,
+    0.085,
+    0.065
+  ],
+  "bags": [
+    {
+      "contact_centre_cm": [
+        44.63,
+        67.08
+      ],
+      "box_centre_cm": [
+        44.76,
+        71.33
+      ],
+      "yaw_deg": -1.6,
+      "contact_edge_measured_cm": 13.29,
+      "contact_edge_used_cm": 12.0,
+      "estimated_depth_cm": 8.5,
+      "contact_line_rms_cm": 0.49,
+      "footprint_corners_cm": [
+        [
+          38.64,
+          67.25
+        ],
+        [
+          38.88,
+          75.75
+        ],
+        [
+          50.63,
+          66.91
+        ],
+        [
+          50.87,
+          75.41
+        ]
+      ],
+      "contact_pixel_count": 42,
+      "seed_bbox_px": [
+        221,
+        187,
+        48,
+        39
+      ]
+    },
+    {
+      "contact_centre_cm": [
+        6.67,
+        66.1
+      ],
+      "box_centre_cm": [
+        5.53,
+        70.2
+      ],
+      "yaw_deg": 15.6,
+      "contact_edge_measured_cm": 11.75,
+      "contact_edge_used_cm": 12.0,
+      "estimated_depth_cm": 8.5,
+      "contact_line_rms_cm": 0.86,
+      "footprint_corners_cm": [
+        [
+          0.89,
+          64.49
+        ],
+        [
+          -1.4,
+          72.68
+        ],
+        [
+          12.45,
+          67.72
+        ],
+        [
+          10.16,
+          75.91
+        ]
+      ],
+      "contact_pixel_count": 35,
+      "seed_bbox_px": [
+        87,
+        188,
+        49,
+        36
+      ]
+    },
+    {
+      "contact_centre_cm": [
+        51.02,
+        37.11
+      ],
+      "box_centre_cm": [
+        51.12,
+        43.11
+      ],
+      "yaw_deg": 89.1,
+      "contact_edge_measured_cm": 5.76,
+      "contact_edge_used_cm": 8.5,
+      "estimated_depth_cm": 12.0,
+      "contact_line_rms_cm": 0.05,
+      "footprint_corners_cm": [
+        [
+          46.77,
+          37.18
+        ],
+        [
+          46.97,
+          49.18
+        ],
+        [
+          55.27,
+          37.04
+        ],
+        [
+          55.47,
+          49.04
+        ]
+      ],
+      "contact_pixel_count": 25,
+      "seed_bbox_px": [
+        247,
+        292,
+        25,
+        46
+      ]
+    }
+  ],
+  "bag_centre_bbox_cm": {
+    "x": [
+      5.53,
+      51.12
+    ],
+    "y": [
+      43.11,
+      71.33
+    ]
+  },
+  "bag_footprint_bbox_cm": {
+    "x": [
+      -1.4,
+      55.47
+    ],
+    "y": [
+      37.04,
+      75.91
+    ]
+  }
+}

@@ -1,0 +1,485 @@
+#!/usr/bin/env python3
+"""A scripted pick-and-place controller -- no replayed trajectory.
+
+Every posture is allowed as long as the IK has a solution, so the arm is driven through
+its own waypoints:
+
+    above pack -> grasp height -> close -> lift -> above box -> lower -> open -> retreat
+
+The grasp POSTURE comes from real data: q_ref is the arm's joints at a real closure
+frame, so the hand's orientation and height are a real, valid grasp; IK then only
+translates that posture to wherever the pack was sampled.  The hand's closing direction
+is aligned with the pack's yaw so the fingers straddle it.
+
+Pack poses are sampled inside the user's measured region, and because the simulator knows
+its own object poses there is no image/pose uncertainty at all.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+import numpy as np
+import yaml
+
+ROOT = Path("/workspace/shared/mujoco_tissue_scene")
+sys.path.insert(0, str(ROOT))
+import action_layout as layout
+import dataset_io
+import scene
+import sim_env
+sys.path.insert(0, str(ROOT / "reports/tools"))
+from lerobot_writer import LerobotWriter
+
+SUCCESS = Path("/workspace/shared/new_program_qiuzhi/without_tactile/success_episode/"
+               "pick_up_the_tissue_pack_and_place_it_on_the_right_side_"
+               "20260908_merged_all_108eps")
+OUT = ROOT / "outputs/scripted_pick_place"
+THUMB = "hand_L_thumb_tip"
+FINGERS = ["hand_L_index_tip", "hand_L_middle_tip", "hand_L_ring_tip", "hand_L_pinky_tip"]
+PITCH = [8, 10, 11, 13, 15]
+
+# waypoint plan: (name, dz above the reference grasp height, hand state, steps to reach)
+PLAN = [("approach", 0.09, "open", 30),
+        ("descend", 0.0, "open", 22),
+        ("close", 0.0, "closed", 10),
+        ("lift", 0.14, "closed", 22),
+        ("transfer", 0.14, "closed", 34),
+        ("lower", 0.02, "closed", 22),
+        ("open", 0.02, "open", 10),
+        ("retreat", 0.15, "open", 22)]
+
+
+class Arm:
+    """FK/IK helper on a private model, so the env is never disturbed."""
+
+    def __init__(self, config_path):
+        import mujoco
+        self.mujoco = mujoco
+        self.model = mujoco.MjModel.from_xml_path(str(scene.build(
+            config_path, OUT / "ik.xml", with_hand=True)))
+        self.data = mujoco.MjData(self.model)
+        self.adr = np.array(layout.joint_ids(self.model, mujoco))
+        self.thumb = self.model.body(THUMB).id
+        self.base = self.model.body("base_link").id
+        self.fingers = [self.model.body(n).id for n in FINGERS]
+        arm_joint_names = layout.SIM_ARM_JOINTS
+        self.arm_qadr = np.array([self.model.joint(n).qposadr[0]
+                                  for n in arm_joint_names])
+        self.hand_qadr = np.array([self.model.joint(n).qposadr[0]
+                                   for n in layout.SIM_HAND_JOINTS])
+        self.lo = np.array([self.model.jnt_range[self.model.joint(n).id][0]
+                            for n in arm_joint_names])
+        self.hi = np.array([self.model.jnt_range[self.model.joint(n).id][1]
+                            for n in arm_joint_names])
+
+    def set_arm(self, q):
+        self.data.qpos[self.arm_qadr] = q
+        self.mujoco.mj_kinematics(self.model, self.data)
+
+    def set_hand(self, h):
+        """The hand pose moves the fingertips by centimetres, so the IK must use the
+        same hand pose that will actually be commanded."""
+        self.data.qpos[self.hand_qadr] = np.asarray(h, dtype=float)
+
+    def tip_mid(self):
+        return 0.5 * (self.data.xpos[self.thumb]
+                      + np.mean([self.data.xpos[i] for i in self.fingers], axis=0))
+
+    def closing_dir(self):
+        return (np.mean([self.data.xpos[i] for i in self.fingers], axis=0)
+                - self.data.xpos[self.thumb])
+
+    def solve(self, target_xy, target_z, want_yaw, seed, q_ref, hand=None):
+        """Damped least squares on the six arm joints."""
+        from scipy.optimize import least_squares
+        tgt = np.array([target_xy[0], target_xy[1], target_z])
+        want = np.array([np.cos(want_yaw), np.sin(want_yaw)])
+
+        # the reach direction of the seed posture: holding this holds the hand's
+        # orientation, which is what the free wrist was losing
+        self.set_arm(seed)
+        if hand is not None:
+            self.set_hand(hand)
+            self.mujoco.mj_kinematics(self.model, self.data)
+        _v0 = self.tip_mid() - self.data.xpos[self.base]
+        ref_dir = _v0 / (np.linalg.norm(_v0) + 1e-9)
+
+        def residual(q):
+            self.set_arm(q)
+            if hand is not None:
+                self.set_hand(hand)
+                self.mujoco.mj_kinematics(self.model, self.data)
+            p = self.tip_mid()
+            c = self.closing_dir()
+            horiz = c[:2] / (np.linalg.norm(c[:2]) + 1e-9)
+            ang = np.arctan2(horiz[0] * want[1] - horiz[1] * want[0],
+                             horiz @ want)
+            _v = p - self.data.xpos[self.base]
+            _u = _v / (np.linalg.norm(_v) + 1e-9)
+            return np.concatenate([(p - tgt) * 10.0, [ang * 1.5],
+                                   (_u - ref_dir) * 3.0,
+                                   (q - seed) * 1.0, (q - q_ref) * 0.05])
+
+        if hand is not None:
+            self.set_hand(hand)
+            self.mujoco.mj_kinematics(self.model, self.data)
+        res = least_squares(residual, seed, bounds=(self.lo, self.hi),
+                            xtol=1e-10, ftol=1e-10, max_nfev=400)
+        self.set_arm(res.x)
+        if hand is not None:
+            self.set_hand(hand)
+            self.mujoco.mj_kinematics(self.model, self.data)
+        err = float(np.linalg.norm(self.tip_mid() - tgt))
+        return res.x, err, float(np.max(np.abs(res.x - seed)))
+
+
+def smooth(a, b, n):
+    t = np.linspace(0.0, 1.0, n + 2)[1:-1][:, None]
+    s = 0.5 - 0.5 * np.cos(np.pi * t)          # cosine ease, no velocity step
+    return a[None, :] + (b - a)[None, :] * s
+
+
+def main() -> int:
+    import mujoco
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--episodes", type=int, default=8)
+    parser.add_argument("--seed", type=int, default=7)
+    parser.add_argument("--save", action="store_true")
+    # -0.20: the grasp must go DEEP. At 0 the finger skin stopped above the pack top
+    # and the fingers only grazed it; at -0.20 the skin reaches ~1.4 cm, the sides are
+    # wrapped, contact force rises to ~49 N and the pack is lifted and placed.
+    parser.add_argument("--descend-dz", type=float, default=-0.20)
+    parser.add_argument("--collect", type=str, default=None)
+    args = parser.parse_args()
+    OUT.mkdir(parents=True, exist_ok=True)
+    config = yaml.safe_load((ROOT / "configs/scene.yaml").read_text())
+    path = OUT / "scene.yaml"
+    path.write_text(yaml.safe_dump(config, allow_unicode=True, sort_keys=False))
+    surface = config["table"]["surface_z"]
+    ts = config["table"]["size"]
+    tray = config["tray"]
+    rng = np.random.default_rng(args.seed)
+
+    # --- grasp posture and hand states, straight from real data
+    data, order = dataset_io.load(SUCCESS, fields=("observation.state", "action"))
+    st, ac = data[0]["observation.state"], data[0]["action"]
+    closed_frames = np.where((np.abs(ac[:, PITCH]) > 0.35).all(axis=1))[0]
+    q_ref = st[int(closed_frames[0])][:6]
+    hand_open = ac[0][6:].copy()
+    hand_closed = ac[int(closed_frames[len(closed_frames) // 2])][6:].copy()
+    print("q_ref (arm joints at a real closure frame): %s" % np.round(q_ref, 4))
+    print("hand open/closed pitch sample: %s / %s"
+          % (np.round(hand_open[PITCH[0] - 6:PITCH[0] - 5], 2),
+             np.round(hand_closed[PITCH[0] - 6:PITCH[0] - 5], 2)))
+
+    arm = Arm(path)
+    arm.set_arm(q_ref)
+    ref = arm.tip_mid()
+    print("reference fingertip midpoint: (%.3f, %.3f, %.3f); %.1f cm above the table"
+          % (ref[0], ref[1], ref[2], (ref[2] - surface) * 100))
+    boxes = config["boxes"]
+    bx_world, by_world = tray["center"][0], tray["center"][1]
+    writer = LerobotWriter(args.collect) if args.collect else None
+
+    env = sim_env.TissueSceneEnv(config_path=path, dataset=SUCCESS, render=True,
+                                 output_dir=OUT)
+    model, mdata = env.model, env.data
+    import json
+    _lib = json.loads((ROOT / "outputs/closure_library/library.json").read_text())
+    release_lib = _lib["release"]
+    library = _lib["grasp"]
+    rel_x = np.array([p["x_cm"] for p in release_lib])
+    rel_y = np.array([p["y_cm"] for p in release_lib])
+    lib_x = np.array([p["x_cm"] for p in library])
+    lib_y = np.array([p["y_cm"] for p in library])
+    print("closure library: %d real grasp postures, x %.1f..%.1f, y %.1f..%.1f"
+          % (len(library), lib_x.min(), lib_x.max(), lib_y.min(), lib_y.max()))
+    region = config["box_randomization"]["region_xy_cm_from_left_bottom"]
+    # the real demos only ever grasped inside the library's span; sampling outside it
+    # asks the arm for poses nobody has shown it can reach
+    # NO margin: sample only inside the span the real demonstrations actually grasped.
+    # With a 2 cm margin both failures in the 12-episode run landed at y ~ 68.4 cm, past
+    # the library's y max of 66.6 -- poses nobody has shown the arm can reach.
+    region = {"x": [max(region["x"][0], float(lib_x.min())),
+                    min(region["x"][1], float(lib_x.max()))],
+              "y": [max(region["y"][0], float(lib_y.min())),
+                    min(region["y"][1], float(lib_y.max()))]}
+    yaw_jit = float(config["box_randomization"].get("yaw_jitter_deg", 25.0))
+    print("sampling packs from x %s cm, y %s cm, yaw jitter %.0f deg"
+          % (region["x"], region["y"], yaw_jit))
+    print()
+    print("  %-4s %-18s %8s %8s %8s %9s %s" %
+          ("ep", "pack cm, yaw", "ik err", "peak", "track", "success", "frames"))
+    rows = []
+    for e in range(args.episodes):
+        px_cm = float(rng.uniform(region["x"][0], region["x"][1]))
+        py_cm = float(rng.uniform(region["y"][0], region["y"][1]))
+        pyaw = float(np.radians(rng.uniform(-yaw_jit, yaw_jit)))
+        px = px_cm / 100.0 - ts[0] / 2.0
+        py = py_cm / 100.0 - ts[1] / 2.0
+
+        env.reset(options={"state": st[0], "randomize_objects": False})
+        for box in boxes:                      # park everything, then place the target
+            badr, bdof = env.box_free[box["name"]]
+            mdata.qpos[badr + 0], mdata.qpos[badr + 1] = -2.0, -2.0
+            mdata.qpos[badr + 2] = surface + box["size"][2] / 2.0
+            mdata.qpos[badr + 3] = 1.0
+            mdata.qpos[badr + 4:badr + 7] = 0.0
+            mdata.qvel[bdof:bdof + 6] = 0.0
+        tgt = boxes[0]
+        badr, bdof = env.box_free[tgt["name"]]
+        mdata.qpos[badr + 0] = px
+        mdata.qpos[badr + 1] = py
+        mdata.qpos[badr + 2] = surface + tgt["size"][2] / 2.0 + 0.002
+        mdata.qpos[badr + 3] = np.cos(pyaw / 2.0)
+        mdata.qpos[badr + 4:badr + 6] = 0.0
+        mdata.qpos[badr + 6] = np.sin(pyaw / 2.0)
+        mdata.qvel[bdof:bdof + 6] = 0.0
+        mujoco.mj_forward(model, mdata)
+
+        # --- solve the waypoints
+        want_yaw = pyaw + np.pi / 2.0
+        near = int(np.argmin(np.hypot(lib_x - px_cm, lib_y - py_cm)))
+        entry = library[near]
+        bx_cm = (bx_world + ts[0] / 2.0) * 100.0
+        by_cm = (by_world + ts[1] / 2.0) * 100.0
+        near_r = int(np.argmin(np.hypot(rel_x - bx_cm, rel_y - by_cm)))
+        rel = release_lib[near_r]
+        box_yaw = float(tray["yaw"]) + np.pi / 2.0
+        seed_pack = np.array(entry["q"], dtype=float)
+        seed_box = np.array(rel["q"], dtype=float)
+        ref_z_pack = float(entry["z_m"])
+        ref_z_box = float(rel["z_m"])
+        solutions, worst, per_way = [], 0.0, []
+        for name, dz, hand, steps in PLAN:
+            over_pack = name in ("approach", "descend", "close", "lift")
+            xy = (px, py) if over_pack else (bx_world, by_world)
+            s0 = seed_pack if over_pack else seed_box
+            # the pack-aligned yaw means nothing once the hand is over the box
+            yaw_here = want_yaw if over_pack else box_yaw
+            z_here = (ref_z_pack if over_pack else ref_z_box) + dz
+            if name in ("descend", "close", "lift"):
+                z_here += args.descend_dz
+            q, err, moved = arm.solve(
+                xy, z_here, yaw_here, s0, q_ref,
+                hand=hand_open if hand == "open" else hand_closed)
+            if over_pack:
+                seed_pack = q.copy()
+            else:
+                seed_box = q.copy()
+            worst = max(worst, err)
+            per_way.append((name, err, moved))
+            solutions.append((q, hand, steps, name))
+        print("      nearest real posture ep%d at (%.1f,%.1f) %.1f cm away; z %.3f" % (entry["episode"], entry["x_cm"], entry["y_cm"],
+              float(np.hypot(entry["x_cm"] - px_cm, entry["y_cm"] - py_cm)),
+              entry["z_m"]))
+        print("      pack seed ep%d (%.1f,%.1f) %.1f cm away | box seed ep%d "
+              "(%.1f,%.1f) %.1f cm from the box"
+              % (entry["episode"], entry["x_cm"], entry["y_cm"],
+                 float(np.hypot(entry["x_cm"] - px_cm, entry["y_cm"] - py_cm)),
+                 rel["episode"], rel["x_cm"], rel["y_cm"],
+                 float(np.hypot(rel["x_cm"] - bx_cm, rel["y_cm"] - by_cm))))
+        print("      per-waypoint IK: " + "  ".join("%s %.3f" % (w[0], w[1])
+                                                    for w in per_way))
+
+        # --- interpolate into a 30 Hz action stream and execute
+        hand_vec = {"open": hand_open, "closed": hand_closed}
+        # ease from where the arm ACTUALLY is after reset, not from a fixed posture
+        actions, prev, seg_bounds = [], mdata.qpos[env.joint_adr].copy(), []
+        for q, hand, steps, wname in solutions:
+            target16 = np.concatenate([q, hand_vec[hand]])
+            seg_start = len(actions)
+            for row in smooth(prev, target16, steps * 3):   # slower: the arm lags a fast command
+                actions.append(row)
+            seg_bounds.append((wname, seg_start, len(actions)))
+            prev = target16
+        start_z = float(mdata.qpos[env.box_free[tgt["name"]][0] + 2])
+        fid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_FLEX, tgt["name"] + "_soft")
+        ep_frames, ep_states, ep_actions = [], [], []
+        table_gid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, "black_table")
+        # only REAL collision geoms of the fingertips: the hand carries duplicate-named
+        # visual geoms (contype 0) and three of them report a bogus 0.0000 distance to the
+        # table at any arm height, which pinned every per-segment minimum to zero.
+        hand_gids = [g for g in range(model.ngeom)
+                     if (model.body(int(model.geom_bodyid[g])).name or "").startswith("hand_")
+                     and model.geom_contype[g] != 0]
+        skin = {}
+        fsum = {}
+        peak, track = 0.0, 0.0
+        worst_vec = None
+        worst_step, worst_pairs, worst_clip = -1, [], False
+        worst_cmd = None
+        first_div = None
+        rows = []
+        hp = {}
+        tipz = []
+        surf_low = []
+        frames = []
+        for step_i, value in enumerate(actions):
+            obs, _, _, _, info = env.step(value)
+            if step_i % 24 == 0 or step_i == len(actions) - 1:
+                frames.append((step_i, np.asarray(obs["observation.images.top"]).copy()))
+            if writer is not None:
+                ep_frames.append({_c: np.asarray(obs[_c]).copy()
+                                  for _c in ("observation.images.top",
+                                             "observation.images.left") if _c in obs})
+                ep_states.append(np.asarray(mdata.qpos[env.joint_adr]).copy())
+                ep_actions.append(np.asarray(value).copy())
+            if 30 <= step_i <= 110 and step_i % 6 == 0:
+                _a = int(model.flex_vertadr[fid])
+                _n = int(model.flex_vertnum[fid])
+                _pc = mdata.flexvert_xpos[_a:_a + _n].mean(0)
+                _tb = [model.body(x).id for x in
+                       ("hand_L_thumb_tip", "hand_L_index_tip", "hand_L_middle_tip",
+                        "hand_L_ring_tip", "hand_L_pinky_tip")]
+                _tm = 0.5 * (mdata.xpos[_tb[0]]
+                             + np.mean([mdata.xpos[i] for i in _tb[1:]], axis=0))
+                _seg = next((w for w, a0, a1 in seg_bounds if a0 <= step_i < a1), "?")
+                rows.append((step_i, _seg,
+                             (_pc[0] + ts[0] / 2) * 100.0, (_pc[1] + ts[1] / 2) * 100.0,
+                             (_tm[0] + ts[0] / 2) * 100.0, (_tm[1] + ts[1] / 2) * 100.0,
+                             float(np.hypot(_pc[0] - _tm[0], _pc[1] - _tm[1])) * 100.0))
+            err = np.abs(np.asarray(info["tracking_error"]))
+            _seg = next((w for w, a0, a1 in seg_bounds if a0 <= step_i < a1), "?")
+            # mj_geomDistance returns a bogus 0 for several of this hand's geoms even
+            # 0.3 m clear of the table, so use a bounding-sphere lower bound instead:
+            # geom centre z minus its bound radius, relative to the table surface.
+            _dmin = min(float(mdata.geom_xpos[_g][2] - model.geom_rbound[_g])
+                        - config["table"]["surface_z"] for _g in hand_gids)
+            skin[_seg] = min(skin.get(_seg, 9.9), float(_dmin))
+            _n = 0
+            for _k in range(mdata.ncon):
+                _ct = mdata.contact[_k]
+                _f = -1
+                if int(_ct.flex[0]) == fid:
+                    _f = 0
+                elif int(_ct.flex[1]) == fid:
+                    _f = 1
+                if _f < 0:
+                    continue
+                _o = int(_ct.geom1) if _f == 1 else int(_ct.geom2)
+                if _o >= 0 and (model.body(int(model.geom_bodyid[_o])).name
+                                or "").startswith("hand_"):
+                    _n += 1
+            _f = 0.0
+            for _k in range(mdata.ncon):
+                _ct = mdata.contact[_k]
+                if int(_ct.flex[0]) == fid or int(_ct.flex[1]) == fid:
+                    _cf = np.zeros(6)
+                    mujoco.mj_contactForce(model, mdata, _k, _cf)
+                    _f += float(np.linalg.norm(_cf[:3]))
+            fsum[_seg] = max(fsum.get(_seg, 0.0), _f)
+            if _n:
+                hp[_seg] = max(hp.get(_seg, 0), _n)
+            _tb = [model.body(x).id for x in
+                   ("hand_L_thumb_tip", "hand_L_index_tip", "hand_L_middle_tip",
+                    "hand_L_ring_tip", "hand_L_pinky_tip")]
+            _tm = 0.5 * (mdata.xpos[_tb[0]]
+                         + np.mean([mdata.xpos[i] for i in _tb[1:]], axis=0))
+            tipz.append(float(_tm[2]) - config["table"]["surface_z"])
+            _a = int(model.flex_vertadr[fid])
+            _nn = int(model.flex_vertnum[fid])
+            surf_low.append(float(mdata.flexvert_xpos[_a:_a + _nn][:, 2].min())
+                            - config["table"]["surface_z"])
+            if first_div is None and float(err[:6].max()) > 0.5:
+                ach = np.asarray(value) + np.asarray(info["tracking_error"])
+                seg = next((w for w, a0, a1 in seg_bounds if a0 <= step_i < a1), "?")
+                first_div = (step_i, seg, np.asarray(value)[:6].copy(), ach[:6].copy())
+            if float(err.max()) > track:
+                track = float(err.max())
+                worst_vec = np.asarray(info["tracking_error"]).copy()
+                worst_step = step_i
+                worst_clip = bool(info.get("action_clipped", False))
+                worst_cmd = np.asarray(value).copy()
+                pairs = {}
+                for k in range(mdata.ncon):
+                    ct = mdata.contact[k]
+                    if int(ct.flex[0]) >= 0 or int(ct.flex[1]) >= 0:
+                        f0 = int(ct.flex[0]); f1 = int(ct.flex[1])
+                        key = "FLEX %s <-> FLEX %s" % (
+                            mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_FLEX, f0)
+                            if f0 >= 0 else "-",
+                            mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_FLEX, f1)
+                            if f1 >= 0 else "-")
+                    elif int(ct.geom1) < 0 or int(ct.geom2) < 0:
+                        key = "UNKNOWN geom1=%d geom2=%d" % (int(ct.geom1), int(ct.geom2))
+                    else:
+                        key = "%s <-> %s" % (model.geom(int(ct.geom1)).name,
+                                             model.geom(int(ct.geom2)).name)
+                    pairs[key] = pairs.get(key, 0) + 1
+                worst_pairs = sorted(pairs.items(), key=lambda kv: -kv[1])[:8]
+            adr = int(model.flex_vertadr[fid])
+            num = int(model.flex_vertnum[fid])
+            peak = max(peak, float(mdata.flexvert_xpos[adr:adr + num].mean(0)[2])
+                       - start_z)
+        if args.save and e < 2:
+            import cv2
+            for step_i, img in frames:
+                cv2.imwrite(str(OUT / ("ep%02d_step%03d.png" % (e, step_i))),
+                            cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+        ok = bool(env.success() and peak > 0.03)
+        if writer is not None and ok:
+            writer.add_episode(ep_frames, ep_states, ep_actions,
+                               {"pack_cm": [px_cm, py_cm]})
+        print("      finger-skin lowest gap to the table per segment: "
+              + "  ".join("%s %.4f" % kv for kv in skin.items()))
+        print("      overall lowest skin gap: %.4f m (pack is 0.065 m tall)"
+              % min(skin.values()))
+        print("      peak contact force on the pack per segment (N): "
+              + "  ".join("%s %.2f" % kv for kv in fsum.items()))
+        print("      hand<->target contacts per segment: %s"
+              % ("  ".join("%s %d" % kv for kv in hp.items()) if hp else "NONE EVER"))
+        print("      fingertip-mid height above table: min %.3f max %.3f | pack lowest "
+              "vertex %.3f m" % (min(tipz), max(tipz), min(surf_low)))
+        if rows:
+            print("      step segment     pack(x,y) cm      tip-mid(x,y) cm    gap cm")
+            for r in rows:
+                print("      %4d %-10s (%6.1f,%6.1f)   (%6.1f,%6.1f)   %6.1f"
+                      % (r[0], r[1], r[2], r[3], r[4], r[5], r[6]))
+        if first_div is not None:
+            print("      FIRST divergence at step %d (segment %s)" % (first_div[0],
+                                                                     first_div[1]))
+            print("         cmd : %s" % np.round(first_div[2], 3))
+            print("         ach : %s" % np.round(first_div[3], 3))
+        else:
+            print("      no divergence above 0.5 rad on any arm joint")
+        if e < 3:
+            print("      worst step %d: action_clipped=%s  contacts=%d"
+                  % (worst_step, worst_clip, sum(n for _, n in worst_pairs)))
+            for key, n in worst_pairs:
+                print("         %3d x %s" % (n, key))
+            if worst_cmd is not None:
+                print("         arm cmd  : %s" % np.round(worst_cmd[:6], 3))
+                print("         arm aimed: %s"
+                      % np.round(worst_cmd[:6] + worst_vec[:6], 3))
+        if e < 3 and worst_vec is not None:
+            print("      worst tracking error per dim:")
+            for i in range(16):
+                mark = "  <== ARM" if i < 6 else ""
+                print("         %-24s %+8.4f%s"
+                      % (layout.DATASET_NAMES[i], worst_vec[i], mark))
+        print("  %-4d (%5.1f,%5.1f) %5.1f  %8.4f %8.3f %8.3f %9s %s"
+              % (e, px_cm, py_cm, np.degrees(pyaw), worst, peak, track, ok,
+                 len(actions)), flush=True)
+        rows.append({"episode": e, "pack_cm": [round(px_cm, 2), round(py_cm, 2)],
+                     "yaw_deg": round(float(np.degrees(pyaw)), 2),
+                     "ik_err": round(worst, 4), "peak_lift": round(peak, 4),
+                     "tracking": round(track, 4), "success": ok,
+                     "frames": len(actions)})
+    env.close()
+    if writer is not None:
+        print("  wrote LeRobot dataset: %s" % writer.write())
+    good = sum(r["success"] for r in rows)
+    print()
+    print("  SCRIPTED CONTROLLER: success %d/%d   mean ik err %.4f m   max tracking %.4f m"
+          % (good, len(rows), float(np.mean([r["ik_err"] for r in rows])),
+             float(np.max([r["tracking"] for r in rows]))))
+    (OUT / "result.json").write_text(json.dumps(rows, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

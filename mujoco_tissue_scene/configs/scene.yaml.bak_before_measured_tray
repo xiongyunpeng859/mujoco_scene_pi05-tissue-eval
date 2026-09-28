@@ -1,0 +1,261 @@
+table:
+  size:
+  - 1.2
+  - 0.75
+  - 0.04
+  surface_z: 0.75
+  surface_z_measured: false
+measured_layout:
+  enabled: true
+  table_size_cm:
+  - 120.0
+  - 75.0
+  arm_mount_xy_cm_from_left_bottom:
+  - 25.0
+  - 10.0
+  tray_lower_left_xy_cm_from_left_bottom:
+  - 63.0
+  - 30.0
+  tray_size_cm:
+  - 21.0
+  - 20.0
+  notes:
+  - 25cm,10cm is confirmed as the arm base center, not the hand.
+  - 63cm,30cm is the green tray lower-left corner, not its center.
+tray:
+  center:
+  - 0.28
+  - -0.08
+  size:
+  - 0.21
+  - 0.2
+  - 0.075
+  wall_thickness: 0.008
+  size_measured: true
+boxes:
+- name: target
+  position:
+  - 0.25
+  - -0.07
+  size:
+  - 0.12
+  - 0.085
+  - 0.065
+  mass: 0.05
+  yaw: 0.03
+- name: distractor_left
+  position:
+  - -0.34
+  - 0.28
+  size:
+  - 0.12
+  - 0.085
+  - 0.065
+  mass: 0.05
+  yaw: -0.22
+- name: distractor_right
+  position:
+  - -0.12
+  - 0.28
+  size:
+  - 0.12
+  - 0.085
+  - 0.065
+  mass: 0.05
+  yaw: 0.1
+friction:
+- 0.8
+- 0.005
+- 0.0001
+cameras:
+  central:
+    source: uvc_uncalibrated
+    device: LRCP 500W
+    serial: SN0001
+    resolution:
+    - 640
+    - 480
+    fps: 30
+    position:
+    - 0.0561
+    - -0.0927
+    - 1.315
+    fovy: 87.9156
+    intrinsics_calibrated: true
+    extrinsics_calibrated: true
+    xyaxes:
+    - 0.998004
+    - 0.042058
+    - -0.047108
+    - -0.013628
+    - 0.871812
+    - 0.489651
+    intrinsics:
+      source: checkerboard_calibration_20260918
+      serial: SN0001
+      resolution:
+      - 640
+      - 480
+      fps: 30
+      fx: 248.786375
+      fy: 248.893913
+      cx: 307.068637
+      cy: 246.547429
+      distortion_model: brown_conrady_opencv
+      distortion_coefficients:
+      - -0.01301631
+      - -0.0291876
+      - 0.00055337
+      - 6.54e-05
+      - 0.00826902
+    calibration:
+      intrinsics_views: 10
+      intrinsics_rms_px: 0.0869
+      extrinsics_rms_px: 0.1571
+      camera_height_above_table_m: 0.565
+      independent_focal_check:
+        method: tape-measured distance + detected board span
+        distance_m: 0.3
+        board_inner_corner_span_px: 120.0
+        board_inner_corner_width_m: 0.15
+        fx_from_measurement: 240.0
+        fx_from_calibration: 248.78637450604847
+        relative_difference_percent: 3.53
+        physical_equivalent: fx=248.8 @640px, sensor 1/2.5"(5.7mm wide) → 等效镜头焦距 2.22 mm，水平FOV 104.3°、垂直FOV
+          87.9°
+        note: 两次独立测量（棋盘格标定 + 卷尺距离）相差 <4%，内参确认可信。此前 scene.yaml 里 fov:52 是纯猜测，须改为本次标定值。
+      ref: outputs/calibration/central_camera_extrinsics.yaml
+  overview:
+    position:
+    - 1.15
+    - -1.25
+    - 1.75
+    target:
+    - 0.0
+    - 0.05
+    - 0.77
+    fovy: 45
+arm:
+  urdf: /workspace/shared/o10-openpi-demo/arm-hand-teleop-o10-openpi-demo-stable/qiuzhi/lerobot_play_1.0.4/x86/noble/lerobot_play-1.0.4-py3-none-any/lerobot_play/urdf/play_e2/urdf/play_e2.urdf
+  mesh_dir: /workspace/shared/o10-openpi-demo/arm-hand-teleop-o10-openpi-demo-stable/qiuzhi/lerobot_play_1.0.4/x86/noble/lerobot_play-1.0.4-py3-none-any/lerobot_play/urdf/play_e2/meshes
+  position:
+  - -0.3
+  - -0.34
+  - 0.75
+  euler:
+  - 0.0
+  - 0.0
+  - 1.3677924
+  initial_qpos:
+  - 0.0188830402
+  - 0.0013351644
+  - -0.00514992
+  - 0.0040054931
+  - 0.0020981156
+  - -0.0009536889
+  hand_mount_position:
+  - 0.0
+  - 0.0
+  - 0.0955
+  hand_mount_euler:
+  - 0.0
+  - 0.0
+  - 1.5707963267948966
+hand:
+  urdf: /workspace/shared/o10-openpi-demo/arm-hand-teleop-o10-openpi-demo-stable/yudie/vendor_sdk/Omnihand-2025-SDK-dev_xuqigui/assets/urdf/omnihand_left.urdf
+  mesh_dir: /workspace/shared/o10-openpi-demo/arm-hand-teleop-o10-openpi-demo-stable/yudie/vendor_sdk/Omnihand-2025-SDK-dev_xuqigui/assets/meshes
+  position:
+  - -0.48
+  - -0.21
+  - 0.86
+  euler:
+  - -1.5707963
+  - 0.0
+  - -0.15
+wrist_camera:
+  parent_body: link6
+  position:
+  - -0.030018
+  - 0.051692
+  - 0.121764
+  xyaxes:
+  - 0.993581
+  - -0.004946
+  - 0.113016
+  - -0.004942
+  - -0.999988
+  - -0.000313
+  bracket_anchor:
+  - -0.030018
+  - 0.051692
+  - 0.101764
+  fovy: 65
+  intrinsics:
+    source: realsense_factory_profile_readonly
+    serial: '260322276846'
+    resolution:
+    - 640
+    - 480
+    fps: 30
+    fx: 394.432373046875
+    fy: 393.42352294921875
+    cx: 318.9329528808594
+    cy: 250.69923400878906
+    distortion_model: inverse_brown_conrady
+    distortion_coefficients:
+    - -0.05362861976027489
+    - 0.05759269371628761
+    - 0.0004462862270884216
+    - -0.00012703091488219798
+    - -0.019203532487154007
+    note: 厂家内参，未做棋盘格标定；此相机未参与手眼以外的标定。
+  intrinsics_calibrated: true
+  hand_eye_calibrated: true
+  hand_eye:
+    T_eef_camera:
+    - - 0.99358084
+      - 0.00494206
+      - -0.11301633
+      - -0.03001829
+    - - -0.00494573
+      - 0.99998774
+      - 0.00024791
+      - 0.05169181
+    - - 0.11301617
+      - 0.00031262
+      - 0.9935931
+      - 0.12176389
+    - - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+    eef_frame: link6
+    method: daniilidis
+    sample_count: 39
+    translation_rms_m: 0.004474
+    rotation_rms_deg: 1.438
+    note: T_eef_camera 是 OpenCV 约定（+Z 光轴朝前）；上面 position/xyaxes 已换算成 MuJoCo 约定（看 -Z、y 向上），直接可用。
+    ref: outputs/calibration/hand_eye_left_realsense_20260918_062627/T_eef_camera.yaml
+boxes_measured: true
+control:
+  physics_timestep_s: 0.002
+  physics_frequency_hz: 500
+  control_frequency_hz: 30
+  camera_frequency_hz: 30
+  action_chunk_size: 50
+  chunk_size_threshold: 0.8
+  action_space: absolute_joint_position_16d
+  note: 物理步长与真机控制频率解耦：500Hz 物理 + 30Hz 控制（16/17 步交替），不改变 pi0.5 action 的物理含义。
+calibration_summary:
+  date: '2026-09-18'
+  wrist_hand_eye: T_eef_camera（39 帧，平移 RMS 4.63mm / 旋转 RMS 1.45°）
+  central_intrinsics: 10 视图，RMS 0.087px；fx=248.79 fy=248.89 垂直FOV 87.9°；卷尺实测 fx=240（差 3.5%），板/桌面比例验证差
+    0.2%
+  central_extrinsics: 纸四角+花纹 88 点联合平差，RMS 0.157px；相机离桌面 56.5 cm（用户卷尺 60cm，已确认以 56.5 为准）
+  still_estimated:
+  - 桌面高度 0.75m
+  - 臂底座朝向 euler.z
+  - 托盘壁厚 0.008m
+  - 物体质量 50g
+  - 摩擦系数
+  - 机器人动力学参数

@@ -1,0 +1,15 @@
+{
+  "real": "/tmp/now_bags.png",
+  "sim": "outputs/measured_placement/central.png",
+  "resolution": [
+    640,
+    480
+  ],
+  "mean_abs_grey_diff": 99.856,
+  "rmse_grey": 113.777,
+  "real_edge_pixels": 7920,
+  "sim_edge_pixels": 5054,
+  "real_edges_matching_sim_within_2px_percent": 33.79,
+  "sim_edges_matching_real_within_2px_percent": 49.76,
+  "note": "The arm is usually in a different joint configuration in the real frame, so treat arm edges as expected mismatch; table, tray and objects should align."
+}

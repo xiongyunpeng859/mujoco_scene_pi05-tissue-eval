@@ -1,0 +1,170 @@
+image_width: 640
+image_height: 480
+camera_matrix:
+- - 248.78637450604847
+  - 0.0
+  - 307.06863662753364
+- - 0.0
+  - 248.8939130365956
+  - 246.5474293819611
+- - 0.0
+  - 0.0
+  - 1.0
+fx: 248.78637450604847
+fy: 248.8939130365956
+cx: 307.06863662753364
+cy: 246.5474293819611
+distortion_model: brown_conrady_opencv
+distortion_coefficients:
+- -0.013016314540623053
+- -0.029187596721112485
+- 0.0005533743877930129
+- 6.539748816179904e-05
+- 0.008269015066178517
+rms_reprojection_px: 0.08688996221555104
+views_used: 10
+views_dropped: []
+per_view:
+- name: view_001
+  reproj_rms_px: 0.0512823648750782
+  tilt_deg: 20.3571063699251
+  distance_m: 0.3282208173088496
+  coverage_cell:
+  - 1
+  - 2
+- name: view_002
+  reproj_rms_px: 0.06691581755876541
+  tilt_deg: 19.682273922135288
+  distance_m: 0.31254219776317516
+  coverage_cell:
+  - 2
+  - 2
+- name: view_003
+  reproj_rms_px: 0.05266200751066208
+  tilt_deg: 5.888107786998668
+  distance_m: 0.40186760124535104
+  coverage_cell:
+  - 1
+  - 2
+- name: view_004
+  reproj_rms_px: 0.09308978170156479
+  tilt_deg: 11.865751278073201
+  distance_m: 0.20692709612389718
+  coverage_cell:
+  - 2
+  - 2
+- name: view_005
+  reproj_rms_px: 0.08614347130060196
+  tilt_deg: 18.68490911053276
+  distance_m: 0.26864572986141616
+  coverage_cell:
+  - 1
+  - 2
+- name: view_006
+  reproj_rms_px: 0.08533480018377304
+  tilt_deg: 16.96015366258483
+  distance_m: 0.4564737516877578
+  coverage_cell:
+  - 1
+  - 2
+- name: view_007
+  reproj_rms_px: 0.06637970358133316
+  tilt_deg: 20.725186287679865
+  distance_m: 0.3877911478108332
+  coverage_cell:
+  - 2
+  - 1
+- name: view_008
+  reproj_rms_px: 0.06703165918588638
+  tilt_deg: 20.90342772179426
+  distance_m: 0.28356449852485766
+  coverage_cell:
+  - 2
+  - 1
+- name: view_009
+  reproj_rms_px: 0.0812026709318161
+  tilt_deg: 21.158328339073346
+  distance_m: 0.25294998876007313
+  coverage_cell:
+  - 2
+  - 2
+- name: view_010
+  reproj_rms_px: 0.16357004642486572
+  tilt_deg: 32.16804177343951
+  distance_m: 0.2231092231268443
+  coverage_cell:
+  - 2
+  - 2
+refinement_history:
+- n: 10
+  rms_px: 0.08688996221555104
+  mean_view_err_px: 0.08136123232543468
+  max_view_err_px: 0.16357004642486572
+camera_name: top
+camera_serial: /dev/v4l/by-id/usb-LRCP_ZAWK_LRCP_500W_SN0001-video-index0
+source: checkerboard_calibration
+width: 640
+height: 480
+board:
+  type: checkerboard
+  inner_corners:
+  - 11
+  - 8
+  square_size_m: 0.015
+fov_deg:
+  vertical: 87.92
+  horizontal: 104.27
+adequacy:
+  sufficient: true
+  view_count: 10
+  cells:
+  - - 0
+    - 0
+  - - 0
+    - 1
+  - - 0
+    - 2
+  - - 0
+    - 3
+  - - 1
+    - 0
+  - - 1
+    - 1
+  - - 1
+    - 2
+  - - 1
+    - 3
+  - - 2
+    - 0
+  - - 2
+    - 1
+  - - 2
+    - 2
+  - - 2
+    - 3
+  - - 3
+    - 1
+  - - 3
+    - 2
+  - - 3
+    - 3
+  notes:
+  - 视图 10 个（建议 ≥ 15，但 ≥8 个就能先解一版）
+  - 画面覆盖 15/16 格（每格 = 160x120 像素区域）
+  - 倾角范围 6°~32°
+  - 板像素跨度 140~316px
+note: 内参由棋盘格标定得到（相机固定、只移动标定板）。MuJoCo 里可直接用 focalpixel=[[fx,fy]] + principalpixel=[[w/2-cx,
+  h/2-cy]]，或用 fovy。
+independent_focal_check:
+  method: tape-measured distance + detected board span
+  distance_m: 0.3
+  board_inner_corner_span_px: 120.0
+  board_inner_corner_width_m: 0.15
+  fx_from_measurement: 240.0
+  fx_from_calibration: 248.78637450604847
+  relative_difference_percent: 3.53
+  physical_equivalent: fx=248.8 @640px, sensor 1/2.5"(5.7mm wide) → 等效镜头焦距 2.22 mm，水平FOV
+    104.3°、垂直FOV 87.9°
+  note: 两次独立测量（棋盘格标定 + 卷尺距离）相差 <4%，内参确认可信。此前 scene.yaml 里 fov:52 是纯猜测，须改为本次标定值。
+mujoco_hint: MuJoCo 相机 fovy 是**垂直**FOV，应填 87.92°（不是 scene.yaml 里的 52°）。也可用 focalpixel="248.79
+  248.89" + principalpixel="12.9 -6.5"。

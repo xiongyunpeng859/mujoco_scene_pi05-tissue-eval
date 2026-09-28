@@ -1,0 +1,29 @@
+{
+  "dataset": "/workspace/shared/new_program_qiuzhi/without_tactile/pi05_normal_recovery_merged_214eps",
+  "episode": 0,
+  "frame": 0,
+  "camera": "central",
+  "distortion_applied": true,
+  "bags_placed_from_image": [
+    {
+      "box": "target",
+      "centre_cm": [
+        25.95,
+        58.31
+      ],
+      "yaw_deg": 5.7
+    },
+    {
+      "box": "distractor_left",
+      "centre_cm": [
+        12.75,
+        61.75
+      ],
+      "yaw_deg": -21.8
+    }
+  ],
+  "mean_abs_grey_diff": 41.23,
+  "rmse_grey": 55.54,
+  "real_edges_matching_sim_within_2px_percent": 27.53,
+  "sim_edges_matching_real_within_2px_percent": 46.16
+}

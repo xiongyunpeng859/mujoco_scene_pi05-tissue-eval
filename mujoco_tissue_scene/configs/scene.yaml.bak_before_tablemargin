@@ -1,0 +1,589 @@
+table:
+  size:
+  - 1.2
+  - 0.75
+  - 0.04
+  surface_z: 0.75
+  surface_z_measured: false
+measured_layout:
+  enabled: true
+  table_size_cm:
+  - 120.0
+  - 75.0
+  arm_mount_xy_cm_from_left_bottom:
+  - 18.0
+  - 10.0
+  tray_center_xy_cm_from_left_bottom:
+  - 61.39
+  - 39.66
+  tray_size_cm:
+  - 21.0
+  - 20.0
+  notes:
+  - '25cm,10cm is the arm base centre: the user''s tape measurement, confirmed by
+    replaying a real episode. The cell holds TWO arms -- the controlled one enters
+    from the LEFT and performs the task, the second is idle in the image''s bottom-right.'
+  - 'An earlier revision mirrored the base to 95cm,15cm. That was wrong: a simulated
+    arm placed bottom-right matched the IDLE arm''s edges, which flattered the wrong
+    answer. Masking the idle region (arm_base_controlled.py) puts the optimum back
+    at x=25cm, with a flat yaw optimum covering the nominal 1.3678.'
+  - 'Decisive check (grasp_test.py / grasp_diag.py): at 95cm the hand never comes
+    within 60cm of any bag and makes zero contacts; at 25cm the replayed real episode
+    actually picks a bag up and carries it.'
+  - 71.25cm,40.61cm is the green box centre, measured by fitting its green inner floor
+    (19.4x18.4cm) against the calibrated central camera; corner residual RMS 1.59px.
+  - The green box (config key 'tray') and the three blue tissue bags are the only
+    objects on the real table; there is no separate tray.
+  - 'CORRECTED 2026: the green box centre was recorded as 71.25cm,40.61cm. That pose
+    projects 46px away from the box''s own green floor in the calibrated image, i.e.
+    it was never the box. Refitting the floor over 49 clean frames gives 61.39+/-0.20cm,
+    39.66+/-0.17cm, yaw -83.8+/-1.3deg at 1.9px corner RMS; the old pose is 9.9cm
+    off in x and 7.4deg off in yaw. scene.py rebuilds tray.center from measured_layout,
+    which is how the wrong value survived every rebuild.'
+tray:
+  center:
+  - 0.013900000000000023
+  - 0.021599999999999953
+  size:
+  - 0.21
+  - 0.2
+  - 0.075
+  yaw: -1.4629
+  wall_thickness: 0.008
+  size_measured: true
+  pose_measured: true
+boxes:
+- name: target
+  position:
+  - -0.0888
+  - 0.0561
+  size:
+  - 0.12
+  - 0.085
+  - 0.065
+  mass: 0.05
+  yaw: 1.5551
+  soft_body: true
+  young: 100000.0
+  flex_count:
+  - 5
+  - 4
+  - 3
+  flex_radius: 0.005
+  poisson: 0.3
+  flex_damping: 1.0
+  friction:
+  - 2.5
+  - 0.1
+  - 0.002
+- name: distractor_left
+  position:
+  - -0.5447
+  - 0.327
+  size:
+  - 0.12
+  - 0.085
+  - 0.065
+  mass: 0.05
+  yaw: 0.2723
+  soft_body: true
+  young: 100000.0
+  flex_count:
+  - 5
+  - 4
+  - 3
+  flex_radius: 0.005
+  poisson: 0.3
+  flex_damping: 1.0
+  friction:
+  - 2.5
+  - 0.1
+  - 0.002
+- name: distractor_right
+  position:
+  - -0.1524
+  - 0.3383
+  size:
+  - 0.12
+  - 0.085
+  - 0.065
+  mass: 0.05
+  yaw: -0.0279
+  soft_body: true
+  young: 100000.0
+  flex_count:
+  - 5
+  - 4
+  - 3
+  flex_radius: 0.005
+  poisson: 0.3
+  flex_damping: 1.0
+  friction:
+  - 2.5
+  - 0.1
+  - 0.002
+friction:
+- 0.8
+- 0.005
+- 0.0001
+lighting:
+  lights:
+  - position:
+    - -0.4
+    - -0.3
+    - 2.5
+    direction:
+    - 0.0
+    - 0.25
+    - -1.0
+    diffuse:
+    - 0.35
+    - 0.35
+    - 0.35
+    ambient:
+    - 0.8
+    - 0.8
+    - 0.8
+    specular:
+    - 0.05
+    - 0.05
+    - 0.05
+    castshadow: false
+  source: measured_from_real_central_frame
+  note: 真机画面是无影的室内漫射光：墙 ≈210、桌面 ≈77（0-255）。原来只有一盏直射光 （无 ambient），墙面法线水平、n·l≈0，所以仿真墙渲染出来只有
+    ~90。现在用 ambient 0.80 + diffuse 0.35 让墙面和桌面的照度分别接近真机，再用下面的材质把 最终颜色对齐。
+materials:
+  floor:
+  - 0.3
+  - 0.3
+  - 0.3
+  - 1.0
+  table:
+  - 0.19
+  - 0.205
+  - 0.197
+  - 1.0
+  wall:
+  - 1.02
+  - 1.04
+  - 0.99
+  - 1.0
+  leg:
+  - 0.19
+  - 0.205
+  - 0.197
+  - 1.0
+  tray_floor:
+  - 0.144
+  - 0.63
+  - 0.306
+  - 1.0
+  tray_wall:
+  - 0.86
+  - 0.87
+  - 0.84
+  - 1.0
+  bag:
+  - 0.5
+  - 0.64
+  - 0.72
+  - 1.0
+  bag_label:
+  - 0.72
+  - 0.75
+  - 0.71
+  - 1.0
+  bag_opening:
+  - 0.21
+  - 0.25
+  - 0.24
+  - 1.0
+  tuning:
+    date: '2026-09-18'
+    method: 真机帧各区域实测色作为目标，逐轮按残差比例修正材质
+    result_round1: 整图 mean|diff| 100.6 -> 42.2，RMSE 114.6 -> 59.3
+    round1_residual: wall -19, table +19, tray_floor +13, bag +35 (sim 偏亮)
+    todo: 真机画面有渐晕/阴影（角落更暗），仿真没有；residual 里有一部分来自这里。
+  note: 取值 = 上一轮取值 × (真机目标色 / 仿真实测色)。
+cameras:
+  central:
+    source: uvc_uncalibrated
+    device: LRCP 500W
+    serial: SN0001
+    resolution:
+    - 640
+    - 480
+    fps: 30
+    position:
+    - 0.0561
+    - -0.0927
+    - 1.315
+    fovy: 87.9156
+    intrinsics_calibrated: true
+    extrinsics_calibrated: true
+    xyaxes:
+    - 0.998004
+    - 0.042058
+    - -0.047108
+    - -0.013628
+    - 0.871812
+    - 0.489651
+    intrinsics:
+      source: checkerboard_calibration_20260918
+      serial: SN0001
+      resolution:
+      - 640
+      - 480
+      fps: 30
+      fx: 248.786375
+      fy: 248.893913
+      cx: 307.068637
+      cy: 246.547429
+      distortion_model: brown_conrady_opencv
+      distortion_coefficients:
+      - -0.01301631
+      - -0.0291876
+      - 0.00055337
+      - 6.54e-05
+      - 0.00826902
+    calibration:
+      intrinsics_views: 10
+      intrinsics_rms_px: 0.0869
+      extrinsics_rms_px: 0.1571
+      camera_height_above_table_m: 0.565
+      independent_focal_check:
+        method: tape-measured distance + detected board span
+        distance_m: 0.3
+        board_inner_corner_span_px: 120.0
+        board_inner_corner_width_m: 0.15
+        fx_from_measurement: 240.0
+        fx_from_calibration: 248.78637450604847
+        relative_difference_percent: 3.53
+        physical_equivalent: fx=248.8 @640px, sensor 1/2.5"(5.7mm wide) → 等效镜头焦距 2.22
+          mm，水平FOV 104.3°、垂直FOV 87.9°
+        note: 两次独立测量（棋盘格标定 + 卷尺距离）相差 <4%，内参确认可信。此前 scene.yaml 里 fov:52 是纯猜测，须改为本次标定值。
+      ref: outputs/calibration/central_camera_extrinsics.yaml
+  overview:
+    position:
+    - 1.15
+    - -1.25
+    - 1.75
+    target:
+    - 0.0
+    - 0.05
+    - 0.77
+    fovy: 45
+arm:
+  urdf: /workspace/shared/o10-openpi-demo/arm-hand-teleop-o10-openpi-demo-stable/qiuzhi/lerobot_play_1.0.4/x86/noble/lerobot_play-1.0.4-py3-none-any/lerobot_play/urdf/play_e2/urdf/play_e2.urdf
+  mesh_dir: /workspace/shared/o10-openpi-demo/arm-hand-teleop-o10-openpi-demo-stable/qiuzhi/lerobot_play_1.0.4/x86/noble/lerobot_play-1.0.4-py3-none-any/lerobot_play/urdf/play_e2/meshes
+  position:
+  - -0.3
+  - -0.34
+  - 0.75
+  euler:
+  - 0.0
+  - 0.0
+  - 1.5708
+  initial_qpos:
+  - 0.0188830402
+  - 0.0013351644
+  - -0.00514992
+  - 0.0040054931
+  - 0.0020981156
+  - -0.0009536889
+  hand_mount_position:
+  - 0.0
+  - 0.0
+  - 0.0955
+  hand_mount_euler:
+  - 0.0
+  - 0.0
+  - 1.5707963267948966
+  base_yaw_evidence: 底座位置 (25,10)cm 由实测 + 第二级扫描确认；yaw 由任务级判据定出（回放真机 episode 0， 看手能否到袋子）：yaw
+    1.3678 时手离袋子 0.132m、零接触；1.5708(=pi/2，"垂直于安装边"的 预期值) 0.067m、零接触；1.90 时 0.034m、260
+    次手-袋接触。故取 1.90。 仍差约 19 度才到 pi/2，可能来自底座 xy 的卷尺误差或袋子实测位置误差。 注意：这一项是任务级拟合值，不是从 URDF
+    推出来的 —— 该臂的伸展范围各方位几乎相同 (0.643~0.656m)，无法用"最够得着的方向"推出朝向。
+  joint_damping: 0.1
+  actuator:
+    kp: 100.0
+    kv: 20.0
+    force: 80.0
+  gains_evidence: 'Chosen by replaying real dataset episodes (replay_check.py): kp=100/kv=20
+    with a 80 N.m force limit gives 4.4-5.5 mm flange RMS against the recorded path
+    and never saturates. kp=300 and kp=1000 saturate (4-49% of steps) and make the
+    flange error worse (20-58 mm), so the current values are kept. Joint damping 1.0
+    -> 0.1 improved flange RMS from 5.5 mm to 4.5 mm.'
+  link_rgba:
+  - 0.21
+  - 0.215
+  - 0.22
+  - 1.0
+  link_rgba_source: 真机受控臂连杆：40 帧首帧中位数实测 BGR≈(79,78,73)；按渲染中位灰度对齐(仿真中位 95 @ material
+    0.29 -> 真机 ~70)取 0.21
+  base_pose_evidence:
+    final: base (18, 10) cm, yaw 90 deg
+    method_1_task_success: 在 108 个全成功 episode 的前 6 个上回放：4/6 抓起、2/6 抓起且放入。yaw 82.5
+      度下最好只有 3/6 抓起、1/6 放入；全周扫描中只有 90 度附近能抓起。
+    method_2_image_features:
+      hand_blob_at_rest: 40 帧共识图银色手掌块质心 (18.1, 308.1)
+      held_bag_at_placing: ep0 t=150 蓝色袋子块质心 (297.6, 301.7)
+      best: (15, 12) cm / 77.5 度 -> 手掌 16.7px、袋子 5.2px
+      (18,10,90): 手掌 9.1px、袋子 55.1px
+      (25,10,90) 用户目测: 手掌 42.0px、袋子 53.1px
+      (34,24,60): 手掌 203.2px、袋子 203.2px -> 彻底排除
+    agreement: 两个独立方法在 4cm / 12 度以内一致；取任务成功率判据的最优值。
+    retracted: 曾一度改成 (34,24,60)，依据是'手掌到托盘最近距离'和'臂掩膜重叠度'两个判据。两者都依赖我人为设定的代理量（手掌 vs 夹持点、高度带），参数一改结论就翻转，且给出的底座在图像特征检验里差
+      200 像素。已撤回。
+hand:
+  urdf: /workspace/shared/o10-openpi-demo/arm-hand-teleop-o10-openpi-demo-stable/yudie/vendor_sdk/Omnihand-2025-SDK-dev_xuqigui/assets/urdf/omnihand_left.urdf
+  mesh_dir: /workspace/shared/o10-openpi-demo/arm-hand-teleop-o10-openpi-demo-stable/yudie/vendor_sdk/Omnihand-2025-SDK-dev_xuqigui/assets/meshes
+  position:
+  - -0.48
+  - -0.21
+  - 0.86
+  euler:
+  - -1.5707963
+  - 0.0
+  - -0.15
+  actuator:
+    kp: 3.0
+    kv: 0.1
+    force: 1.5
+  lock_constant_joints: false
+  lock_note: thumb_cm_roll / thumb_cm_yaw / index_mp_yaw / ring_mp_yaw / pinky_mp_yaw
+    share a value between the recorded open and closed gestures, so scene.py used
+    to freeze them with equality constraints. The dataset shows they are re-chosen
+    each episode (thumb_cm_yaw spans 1.362..1.640) and then held, so freezing them
+    at one constant makes the recorded action unrepresentable. They are now free joints
+    held by their own actuator, set at reset from the episode start state.
+  mesh_rgba:
+  - 0.83
+  - 0.84
+  - 0.82
+  - 1.0
+wrist_camera:
+  parent_body: link6
+  position:
+  - -0.030018
+  - 0.051692
+  - 0.121764
+  xyaxes:
+  - 0.993581
+  - -0.004946
+  - 0.113016
+  - -0.004942
+  - -0.999988
+  - -0.000313
+  bracket_anchor:
+  - -0.030018
+  - 0.051692
+  - 0.101764
+  fovy: 65
+  intrinsics:
+    source: realsense_factory_profile_readonly
+    serial: '260322276846'
+    resolution:
+    - 640
+    - 480
+    fps: 30
+    fx: 394.432373046875
+    fy: 393.42352294921875
+    cx: 318.9329528808594
+    cy: 250.69923400878906
+    distortion_model: inverse_brown_conrady
+    distortion_coefficients:
+    - -0.05362861976027489
+    - 0.05759269371628761
+    - 0.0004462862270884216
+    - -0.00012703091488219798
+    - -0.019203532487154007
+    note: 厂家内参，未做棋盘格标定；此相机未参与手眼以外的标定。
+  intrinsics_calibrated: true
+  hand_eye_calibrated: true
+  hand_eye:
+    T_eef_camera:
+    - - 0.99358084
+      - 0.00494206
+      - -0.11301633
+      - -0.03001829
+    - - -0.00494573
+      - 0.99998774
+      - 0.00024791
+      - 0.05169181
+    - - 0.11301617
+      - 0.00031262
+      - 0.9935931
+      - 0.12176389
+    - - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+    eef_frame: link6
+    method: daniilidis
+    sample_count: 39
+    translation_rms_m: 0.004474
+    rotation_rms_deg: 1.438
+    note: T_eef_camera 是 OpenCV 约定（+Z 光轴朝前）；上面 position/xyaxes 已换算成 MuJoCo 约定（看 -Z、y
+      向上），直接可用。
+    ref: outputs/calibration/hand_eye_left_realsense_20260918_062627/T_eef_camera.yaml
+boxes_measured: true
+box_randomization:
+  enabled: true
+  status: measured_20260918
+  rule: all three bags spawn strictly left of the green box
+  tray_left_edge_cm: 61.25
+  region_xy_cm_from_left_bottom:
+    x:
+    - 6.0
+    - 52.0
+    y:
+    - 43.0
+    - 72.0
+  yaw_jitter_deg: 25.0
+  min_separation_cm: 15.0
+  seed: 20260918
+  measured_samples:
+  - name: leftmost_and_far
+    centre_cm_from_left_bottom:
+    - 5.53
+    - 70.2
+    yaw_deg: 15.6
+  - name: middle_and_far
+    centre_cm_from_left_bottom:
+    - 44.76
+    - 71.33
+    yaw_deg: -1.6
+  - name: nearest_to_box
+    centre_cm_from_left_bottom:
+    - 51.12
+    - 43.11
+    yaw_deg: 89.1
+  note: region is the bounding box of the three placements the user marked as typical;
+    yaw of the nearest sample is low confidence because only part of its contact edge
+    was visible. Adjust the region and re-run measure_layout.py any time.
+  ref: outputs/alignment_20260918
+control:
+  physics_timestep_s: 0.002
+  physics_frequency_hz: 500
+  control_frequency_hz: 30
+  camera_frequency_hz: 30
+  action_chunk_size: 50
+  chunk_size_threshold: 0.8
+  action_space: absolute_joint_position_16d
+  note: 物理步长与真机控制频率解耦：500Hz 物理 + 30Hz 控制（16/17 步交替），不改变 pi0.5 action 的物理含义。
+  substeps_per_control: 16.667
+env:
+  observation_keys:
+    observation.images.top: central
+    observation.images.left: left_wrist
+    observation.state: joint_positions_16d
+  image_resolution:
+  - 640
+  - 480
+  image_dtype: uint8
+  state_dtype: float32
+  action_dtype: float32
+  apply_lens_distortion: true
+  task: pick up the tissue pack and place it on the right side
+  task_source: meta/tasks.parquet of the training dataset
+  note: 键名、形状、dtype 与数据集 meta/info.json 逐字段一致，pi0.5 不需要任何额外表示。 镜头畸变按标定系数施加，因为真机视频是带畸变的、而
+    MuJoCo 渲染的是理想针孔。
+reset:
+  source: dataset_episode_start_state
+  dataset: /workspace/shared/new_program_qiuzhi/without_tactile/pi05_normal_recovery_merged_214eps
+  analysis: reports/dataset_analysis.json
+  arm_strategy: sample_episode_start_state
+  hand_strategy: sample_episode_start_state
+  joint_jitter_rad: 0.01
+  settle_seconds: 0.5
+  note: 起始关节角从数据集的 214 个 episode 首帧里采样（含那 5 个 held 关节各自的实际值）， 再加 ±0.01 rad 抖动，然后用
+    settle_seconds 让物体落稳；不再写死一组 initial_qpos。
+calibration_summary:
+  date: '2026-09-18'
+  wrist_hand_eye: T_eef_camera（39 帧，平移 RMS 4.63mm / 旋转 RMS 1.45°）
+  central_intrinsics: 10 视图，RMS 0.087px；fx=248.79 fy=248.89 垂直FOV 87.9°；卷尺实测 fx=240（差
+    3.5%），板/桌面比例验证差 0.2%
+  central_extrinsics: 纸四角+花纹 88 点联合平差，RMS 0.157px；相机离桌面 56.5 cm（用户卷尺 60cm，已确认以 56.5
+    为准）
+  central_extrinsics_independent_checks:
+  - 白纸：反投影得 x 55.1..74.9 / y 29.7..49.4 cm，卷尺实测 55.0..75.0 / 29.5..49.5 → 差 0.2cm
+  - 绿盒子：内底正面 PnP 得中心 (71.25, 40.61)cm，与 measured_layout 生效值 (73.5, 40.0)cm 差 2.3cm（含
+    90° 转角与外壁/内底差别）
+  - 桌面远边：y=75cm 投影到图像 y≈201px，与真机桌面/墙交界一致
+  code_fixes:
+  - 腕相机原先被放在 mount 的 '0 0 -0.016'，即沿光轴多前移 16mm；手眼标定给的是光心，已改为光心在 mount 原点、外壳往后移。
+  - 托盘原先只按轴对齐摆放、不支持 yaw，实测盒子转了约 -91°，已支持 tray.yaw。
+  still_estimated:
+  - 桌面高度 0.75m
+  - 托盘壁厚 0.008m
+  - 物体质量 50g
+  - 摩擦系数
+  - 机器人动力学参数
+  - 三个纸巾袋的随机区域（已实测三处典型位置，边界可再调）
+  corrections:
+  - 臂底座 (25,10)cm 经回放验证是对的。曾一度误判为需要镜像到 (95,15)cm：真机场景里 有第二只闲置臂在画面右下，仿真的臂放到右下时匹配上了闲置臂的边缘，把错误答案抬高了。
+    遮掉闲置臂区域重搜（arm_base_controlled.py）后最优回到 x=25cm。
+  - 臂底座 yaw 仍未定准：t=119 帧仿真与真机大致吻合，t=180 帧仿真偏到托盘右侧， 估计还差 30~40 度。见 §未完成。
+  - 五个 yaw/roll 手关节原被 equality 硬锁成常量，现改为自由关节 + 执行器保持， 重置时从数据集 episode 首帧取值，16 维动作因此完全可表示。
+  - 手部动作原只接受 open/closed 二值，现接受真机的连续绝对位置。
+  - 腕相机光心原多偏 16mm（沿光轴），已修正。
+  - 托盘原不支持 yaw，已支持（实测转了约 -91°）。
+boxes_soft_body:
+  enabled: true
+  young: 100000.0
+  flex_count:
+  - 5
+  - 4
+  - 3
+  friction:
+  - 2.5
+  - 0.1
+  - 0.002
+  why: 手是二值的(0/1)、闭合后仍有间隙、真机抓得也不紧(用户确认)，所以夹持力不是控制量；袋子能被拿起只能靠摩擦和那点压缩量。刚体盒子会被解算器顶出去，软体才抓得住。
+  evidence:
+    rigid: 接触424次/峰值13N，抬升-0.0009m
+    friction_1.5: 搬运0步，抬升0.020m
+    friction_4.0: 搬运119步(4s)，抬升0.092m，搬到离托盘0.229m
+    young_1e5_vs_3e5: 结果相同 -> 袋子几乎不压缩，与'变形不明显'一致
+    hand_kp: 3最好；15/60更差
+    binary_hand: 手只有 open/closed，与数据集 steady state 一致(pitch 0 或 0.7)
+    friction_sweep_2026: 'grasped/placed over episodes 0,1,3,4: 4.0 -> 4/4, 0/4; 2.5
+      -> 4/4, 1/4; 1.5 -> 0/4, 0/4; 0.8 -> 0/4, 0/4. Release trace shows why 4.0 fails:
+      the hand opens with the bag 68% inside the box, then the retreating palm keeps
+      14-25 contacts and drags the bag back to 0.187m outside.'
+grasping:
+  hand_command: binary_open_close
+  hand_note: 真机只有 open/closed 二值，无中间段，因此不调抓握力；手部用数据集记录的闭合值
+  closed_fingertip_aperture_cm:
+  - 8.0
+  - 9.2
+  bag_size_cm:
+  - 12.0
+  - 8.5
+  - 6.5
+  why_it_works: 手是二值的(0/1)、闭合后仍有间隙、真机抓得也不紧（用户确认），所以夹持力不是控制量。袋子能被拿起只能靠摩擦和那点压缩量：刚体盒子会被
+    MuJoCo 解算器顶出去，软体才抓得住。摩擦 1.5 -> 4.0 是从'搬不动'到'能搬'的决定性杠杆；young 1e5 与 3e5 结果相同，说明袋子几乎不压缩，与'变形不明显'一致。
+  evidence:
+    rigid_bag: 接触424次/峰值13N，抬升-0.0009m -> 抓不住
+    soft_friction_1.5: 搬运0步，抬升0.020m
+    soft_friction_4.0: 搬运119步(4s)，抬升0.092m
+    hand_kp: 3 最优；15/60 更差
+    end_to_end: base(20,6)cm/yaw pi/2 时 episode 0 抬升13.0cm、搬运后落入绿盒子
+    multi_episode: 'base(20,6): 4/5 episode 结束时盒子内有袋子（其中3个抬升仅1.5-2cm，疑似推入而非抓取，需逐条核查）'
+  alignment_open_item: 底座位置由任务级判据定到 (20,6)cm，与用户卷尺实测 (25,10)cm 差 6.4cm；yaw 定到 pi/2（与'垂直于安装边'一致）。这个差值还没解释。
+alignment_search:
+  base_cm:
+  - 34.0
+  - 24.0
+  yaw_rad: 1.0472
+  criterion: 纯运动学、不牵扯抓取也不牵扯袋子检测：在 108 个全成功 episode 里，真机每次都把手伸到托盘上方才能放进去，所以'手掌到托盘中心的最近距离'必须很小。跳过前
+    60 步的折叠起始位姿。
+  result:
+    (34,24,60deg): mean 0.0114m, worst 0.0461m, 30/30 episodes within 12cm
+    (18,10,90deg) 抓取拟合: mean 0.2296m, 手从未进入 12cm 内
+    (25,10,90deg) 用户目测: mean 0.1606m, 手从未进入 12cm 内
+    (34,24,90deg): mean 0.1625m
+  arbitration: outputs/arbitrate/triple.png：同一真机帧(t=120/150/165)分别用两个底座渲染。(34,24,60)
+    的手在托盘上方、与真机一致；(18,10,90) 的手停在托盘左侧。
+  consequence: 抓取判据之所以给出错误底座，是因为它把'袋子位置检测的系统偏差'吸收进了底座。早前'叠加图上袋子对齐'的验证是循环论证（同一检测器+同一相机），不能证明检测的绝对精度。
+  next: 底座定案后，用仿真反解袋子应该在哪（placement_per_episode.py），再回头修检测器。

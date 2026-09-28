@@ -1,0 +1,373 @@
+[
+  {
+    "base": [
+      18.0,
+      10.0
+    ],
+    "grasped": 4,
+    "placed": 2,
+    "mean_nearest": 0.217075,
+    "rows": [
+      {
+        "episode": 0,
+        "peak": 0.1428,
+        "grasped": true,
+        "placed": false,
+        "nearest": 0.1683
+      },
+      {
+        "episode": 1,
+        "peak": 0.1004,
+        "grasped": true,
+        "placed": true,
+        "nearest": 0.173
+      },
+      {
+        "episode": 2,
+        "peak": 0.0175,
+        "grasped": false,
+        "placed": false,
+        "nearest": null
+      },
+      {
+        "episode": 3,
+        "peak": 0.14,
+        "grasped": true,
+        "placed": false,
+        "nearest": 0.3669
+      },
+      {
+        "episode": 4,
+        "peak": 0.1393,
+        "grasped": true,
+        "placed": true,
+        "nearest": 0.1601
+      },
+      {
+        "episode": 5,
+        "peak": 0.02,
+        "grasped": false,
+        "placed": false,
+        "nearest": null
+      }
+    ]
+  },
+  {
+    "base": [
+      18.0,
+      8.0
+    ],
+    "grasped": 4,
+    "placed": 2,
+    "mean_nearest": 0.242025,
+    "rows": [
+      {
+        "episode": 0,
+        "peak": 0.1405,
+        "grasped": true,
+        "placed": false,
+        "nearest": 0.1346
+      },
+      {
+        "episode": 1,
+        "peak": 0.0814,
+        "grasped": true,
+        "placed": true,
+        "nearest": 0.2316
+      },
+      {
+        "episode": 2,
+        "peak": 0.0175,
+        "grasped": false,
+        "placed": false,
+        "nearest": null
+      },
+      {
+        "episode": 3,
+        "peak": 0.1123,
+        "grasped": true,
+        "placed": false,
+        "nearest": 0.432
+      },
+      {
+        "episode": 4,
+        "peak": 0.1425,
+        "grasped": true,
+        "placed": true,
+        "nearest": 0.1699
+      },
+      {
+        "episode": 5,
+        "peak": 0.02,
+        "grasped": false,
+        "placed": false,
+        "nearest": null
+      }
+    ]
+  },
+  {
+    "base": [
+      16.0,
+      10.0
+    ],
+    "grasped": 4,
+    "placed": 2,
+    "mean_nearest": 0.255825,
+    "rows": [
+      {
+        "episode": 0,
+        "peak": 0.1484,
+        "grasped": true,
+        "placed": false,
+        "nearest": 0.1678
+      },
+      {
+        "episode": 1,
+        "peak": 0.1046,
+        "grasped": true,
+        "placed": true,
+        "nearest": 0.1697
+      },
+      {
+        "episode": 2,
+        "peak": 0.0175,
+        "grasped": false,
+        "placed": false,
+        "nearest": null
+      },
+      {
+        "episode": 3,
+        "peak": 0.1025,
+        "grasped": true,
+        "placed": false,
+        "nearest": 0.5032
+      },
+      {
+        "episode": 4,
+        "peak": 0.1499,
+        "grasped": true,
+        "placed": true,
+        "nearest": 0.1826
+      },
+      {
+        "episode": 5,
+        "peak": 0.02,
+        "grasped": false,
+        "placed": false,
+        "nearest": null
+      }
+    ]
+  },
+  {
+    "base": [
+      20.0,
+      10.0
+    ],
+    "grasped": 3,
+    "placed": 1,
+    "mean_nearest": 0.2361,
+    "rows": [
+      {
+        "episode": 0,
+        "peak": 0.1387,
+        "grasped": true,
+        "placed": false,
+        "nearest": 0.1533
+      },
+      {
+        "episode": 1,
+        "peak": 0.0637,
+        "grasped": true,
+        "placed": true,
+        "nearest": 0.3602
+      },
+      {
+        "episode": 2,
+        "peak": 0.0175,
+        "grasped": false,
+        "placed": false,
+        "nearest": null
+      },
+      {
+        "episode": 3,
+        "peak": 0.1452,
+        "grasped": true,
+        "placed": false,
+        "nearest": 0.1948
+      },
+      {
+        "episode": 4,
+        "peak": 0.0308,
+        "grasped": false,
+        "placed": false,
+        "nearest": 0.423
+      },
+      {
+        "episode": 5,
+        "peak": 0.02,
+        "grasped": false,
+        "placed": false,
+        "nearest": null
+      }
+    ]
+  },
+  {
+    "base": [
+      18.0,
+      6.0
+    ],
+    "grasped": 3,
+    "placed": 1,
+    "mean_nearest": 0.2678666666666667,
+    "rows": [
+      {
+        "episode": 0,
+        "peak": 0.1385,
+        "grasped": true,
+        "placed": false,
+        "nearest": 0.1268
+      },
+      {
+        "episode": 1,
+        "peak": 0.0251,
+        "grasped": false,
+        "placed": false,
+        "nearest": 0.6516
+      },
+      {
+        "episode": 2,
+        "peak": 0.0175,
+        "grasped": false,
+        "placed": false,
+        "nearest": null
+      },
+      {
+        "episode": 3,
+        "peak": 0.0861,
+        "grasped": true,
+        "placed": false,
+        "nearest": 0.5329
+      },
+      {
+        "episode": 4,
+        "peak": 0.1227,
+        "grasped": true,
+        "placed": true,
+        "nearest": 0.1439
+      },
+      {
+        "episode": 5,
+        "peak": 0.02,
+        "grasped": false,
+        "placed": false,
+        "nearest": null
+      }
+    ]
+  },
+  {
+    "base": [
+      16.0,
+      6.0
+    ],
+    "grasped": 2,
+    "placed": 1,
+    "mean_nearest": 0.1622,
+    "rows": [
+      {
+        "episode": 0,
+        "peak": 0.1208,
+        "grasped": true,
+        "placed": false,
+        "nearest": 0.1598
+      },
+      {
+        "episode": 1,
+        "peak": 0.0304,
+        "grasped": false,
+        "placed": false,
+        "nearest": 0.629
+      },
+      {
+        "episode": 2,
+        "peak": 0.0175,
+        "grasped": false,
+        "placed": false,
+        "nearest": null
+      },
+      {
+        "episode": 3,
+        "peak": 0.03,
+        "grasped": false,
+        "placed": false,
+        "nearest": 0.5656
+      },
+      {
+        "episode": 4,
+        "peak": 0.1383,
+        "grasped": true,
+        "placed": true,
+        "nearest": 0.1646
+      },
+      {
+        "episode": 5,
+        "peak": 0.02,
+        "grasped": false,
+        "placed": false,
+        "nearest": null
+      }
+    ]
+  },
+  {
+    "base": [
+      20.0,
+      6.0
+    ],
+    "grasped": 2,
+    "placed": 1,
+    "mean_nearest": 0.33005,
+    "rows": [
+      {
+        "episode": 0,
+        "peak": 0.1304,
+        "grasped": true,
+        "placed": true,
+        "nearest": 0.1179
+      },
+      {
+        "episode": 1,
+        "peak": 0.0191,
+        "grasped": false,
+        "placed": false,
+        "nearest": null
+      },
+      {
+        "episode": 2,
+        "peak": 0.0175,
+        "grasped": false,
+        "placed": false,
+        "nearest": null
+      },
+      {
+        "episode": 3,
+        "peak": 0.0542,
+        "grasped": true,
+        "placed": false,
+        "nearest": 0.5422
+      },
+      {
+        "episode": 4,
+        "peak": 0.0206,
+        "grasped": false,
+        "placed": false,
+        "nearest": 0.5189
+      },
+      {
+        "episode": 5,
+        "peak": 0.02,
+        "grasped": false,
+        "placed": false,
+        "nearest": null
+      }
+    ]
+  }
+]

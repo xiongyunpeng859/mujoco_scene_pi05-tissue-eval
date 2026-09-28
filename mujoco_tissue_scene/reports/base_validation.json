@@ -1,0 +1,506 @@
+[
+  {
+    "base": [
+      20.0,
+      6.0
+    ],
+    "successes": 1,
+    "n": 8,
+    "lifts": [
+      0.1304,
+      0.019,
+      0.0175,
+      0.0,
+      0.0198,
+      0.02,
+      0.0,
+      0.0
+    ],
+    "detail": [
+      {
+        "episode": 0,
+        "grasped_lifted": true,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.1304,
+        "success": true
+      },
+      {
+        "episode": 1,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.019,
+        "success": false
+      },
+      {
+        "episode": 2,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "distractor_left",
+        "peak_rise": 0.0175,
+        "success": false
+      },
+      {
+        "episode": 3,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 4,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.0198,
+        "success": false
+      },
+      {
+        "episode": 5,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.02,
+        "success": false
+      },
+      {
+        "episode": 6,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 7,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      }
+    ]
+  },
+  {
+    "base": [
+      18.0,
+      6.0
+    ],
+    "successes": 0,
+    "n": 8,
+    "lifts": [
+      0.0,
+      0.019,
+      0.0175,
+      0.0,
+      0.0193,
+      0.02,
+      0.0,
+      0.0
+    ],
+    "detail": [
+      {
+        "episode": 0,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 1,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.019,
+        "success": false
+      },
+      {
+        "episode": 2,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "distractor_left",
+        "peak_rise": 0.0175,
+        "success": false
+      },
+      {
+        "episode": 3,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 4,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.0193,
+        "success": false
+      },
+      {
+        "episode": 5,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.02,
+        "success": false
+      },
+      {
+        "episode": 6,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 7,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      }
+    ]
+  },
+  {
+    "base": [
+      22.0,
+      6.0
+    ],
+    "successes": 0,
+    "n": 8,
+    "lifts": [
+      0.0,
+      0.019,
+      0.0175,
+      0.0,
+      0.0198,
+      0.02,
+      0.0,
+      0.0
+    ],
+    "detail": [
+      {
+        "episode": 0,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 1,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.019,
+        "success": false
+      },
+      {
+        "episode": 2,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "distractor_left",
+        "peak_rise": 0.0175,
+        "success": false
+      },
+      {
+        "episode": 3,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 4,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.0198,
+        "success": false
+      },
+      {
+        "episode": 5,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.02,
+        "success": false
+      },
+      {
+        "episode": 6,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 7,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      }
+    ]
+  },
+  {
+    "base": [
+      20.0,
+      2.0
+    ],
+    "successes": 0,
+    "n": 8,
+    "lifts": [
+      0.0,
+      0.019,
+      0.0175,
+      0.0,
+      0.0198,
+      0.02,
+      0.0,
+      0.0
+    ],
+    "detail": [
+      {
+        "episode": 0,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 1,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.019,
+        "success": false
+      },
+      {
+        "episode": 2,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "distractor_left",
+        "peak_rise": 0.0175,
+        "success": false
+      },
+      {
+        "episode": 3,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 4,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.0198,
+        "success": false
+      },
+      {
+        "episode": 5,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.02,
+        "success": false
+      },
+      {
+        "episode": 6,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 7,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      }
+    ]
+  },
+  {
+    "base": [
+      20.0,
+      10.0
+    ],
+    "successes": 0,
+    "n": 8,
+    "lifts": [
+      0.0,
+      0.019,
+      0.0175,
+      0.0,
+      0.0198,
+      0.02,
+      0.0,
+      0.0
+    ],
+    "detail": [
+      {
+        "episode": 0,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 1,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.019,
+        "success": false
+      },
+      {
+        "episode": 2,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "distractor_left",
+        "peak_rise": 0.0175,
+        "success": false
+      },
+      {
+        "episode": 3,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 4,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.0198,
+        "success": false
+      },
+      {
+        "episode": 5,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.02,
+        "success": false
+      },
+      {
+        "episode": 6,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 7,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      }
+    ]
+  },
+  {
+    "base": [
+      25.0,
+      10.0
+    ],
+    "successes": 0,
+    "n": 8,
+    "lifts": [
+      0.0,
+      0.019,
+      0.0175,
+      0.0,
+      0.0198,
+      0.02,
+      0.0,
+      0.0
+    ],
+    "detail": [
+      {
+        "episode": 0,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 1,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.019,
+        "success": false
+      },
+      {
+        "episode": 2,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "distractor_left",
+        "peak_rise": 0.0175,
+        "success": false
+      },
+      {
+        "episode": 3,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 4,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.0198,
+        "success": false
+      },
+      {
+        "episode": 5,
+        "grasped_lifted": false,
+        "in_tray": true,
+        "bag": "target",
+        "peak_rise": 0.02,
+        "success": false
+      },
+      {
+        "episode": 6,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      },
+      {
+        "episode": 7,
+        "grasped_lifted": false,
+        "in_tray": false,
+        "bag": null,
+        "peak_rise": 0.0,
+        "success": false
+      }
+    ]
+  }
+]

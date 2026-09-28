@@ -1,0 +1,44 @@
+{
+  "0": {
+    "best": {
+      "placement": [
+        32.0,
+        58.0,
+        -45.0
+      ],
+      "peak": 0.1391,
+      "in_tray_frac": 0.933,
+      "success": true
+    },
+    "wins": 3,
+    "n": 27
+  },
+  "1": {
+    "best": {
+      "placement": [
+        16.0,
+        58.0,
+        45.0
+      ],
+      "peak": 0.1069,
+      "in_tray_frac": 0.0,
+      "success": false
+    },
+    "wins": 0,
+    "n": 27
+  },
+  "2": {
+    "best": {
+      "placement": [
+        16.0,
+        50.0,
+        45.0
+      ],
+      "peak": 0.0079,
+      "in_tray_frac": 0.0,
+      "success": false
+    },
+    "wins": 0,
+    "n": 27
+  }
+}

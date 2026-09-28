@@ -1,0 +1,26 @@
+source: IPPE two-solution + joint refinement (paper+pattern)
+residual_rms_px: 0.15705709560116574
+camera_position_world_m:
+- 0.05613183341388655
+- -0.09266624456519493
+- 0.5650031178266587
+camera_height_above_table_m: 0.5650031178266587
+user_measured_height_m: 0.6
+optical_axis_world:
+- -0.06166275504726408
+- 0.4880319108090357
+- -0.8706449096342679
+pattern_offset_in_paper_cm:
+- 15.216439158864157
+- 2.4795736833655484
+pattern_yaw_in_paper_deg: 90.04958309832364
+mujoco:
+  pos: 0.0561 -0.0927 1.3150
+  xyaxes: 0.998004 0.042058 -0.047108 -0.013628 0.871812 0.489651
+  fovy: 87.91559083426698
+  focalpixel:
+  - 248.78637450604847
+  - 248.8939130365956
+  principalpixel:
+  - 12.931363372466365
+  - -6.547429381961109
