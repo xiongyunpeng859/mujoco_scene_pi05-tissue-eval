@@ -50,15 +50,6 @@ bash run_many_eval_cloud.sh "$HOME/artifacts/rounds" "$HOME/eval_many" 20
 
 The third argument is an optional maximum number of scenes; use `0` to evaluate all scenes. Each scene gets its own output directory and `summary.tsv` records completed runs and final success.
 
-## Random object-placement evaluation
+## Evaluation protocol
 
-For performance testing, use random episodes rather than fixed recorded rounds. This keeps the camera, robot, lighting, textures, and physics fixed; only the three tissue-pack positions and yaws are sampled. Every episode uses the same first robot start state from SIM494_DATASET, with joint jitter disabled. Only its data/ Parquet files are required; videos and recorded rounds are unnecessary.
-
-```bash
-source cloud_env.sh
-bash run_random_eval_cloud.sh 20 "$HOME/eval_random"
-```
-
-Each episode uses a deterministic seed and writes its own video, trace, and `result.json`; `summary.tsv` reports the aggregate result. Set `SIM494_DATASET` to the uploaded 494-episode dataset before running.
-
-Random evaluation uses the calibrated yaw range (currently ±25°), clips the sampling area to keep full object footprints on the table and left of the tray, and prevents overlapping spawns. Each episode attempts ONE target selected front-to-back among three packs, not all three packs. summary.json separates execution errors from completed-episode success rate. GPU inference has not yet been validated on the cloud host.
+Evaluation uses `--known-round`: each recorded `round-*` contains a complete, reproducible initial scene, including object placement, robot state, appearance, and target. This is the canonical path for comparing checkpoints. Use multiple rounds for repeated evaluation; do not report an unrecorded random scene as the standard result.

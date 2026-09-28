@@ -61,7 +61,7 @@ def main():
         cfg_data['wrist_camera']=nominal['wrist_camera']
     # Keep camera, robot, lighting, textures, and physics fixed; only ThreeBagRound
     # samples object positions and yaws.
-    cfg_data['domain_randomization']={'enabled':False}
+    cfg_data['domain_randomization']={'enabled':bool(a.known_round)}
     rigid_cfg=a.output_dir/'rigid_eval.yaml'
     rigid_cfg.write_text(yaml.safe_dump(cfg_data,sort_keys=False));cfg=rigid_cfg
     dataset_path=(a.known_round/'dataset') if a.known_round else Path(os.environ.get('SIM494_DATASET', str(PROJECT/'artifacts/dataset')))
@@ -93,6 +93,7 @@ def main():
             env.move_object(spawn['name'],[spawn['xy_cm'][0]/100-env.config['table']['size'][0]/2,
                 spawn['xy_cm'][1]/100-env.config['table']['size'][1]/2,
                 env.config['table']['surface_z']+box['size'][2]/2+.002],spawn['yaw'])
+        # Restore the exact appearance recorded with this known round.
         AppearanceRandomizer(env).apply(meta['appearance']['seed'])
         for _ in range(round(.25/env.model.opt.timestep)):mujoco.mj_step(env.model,env.data)
         env._time_target=env.data.time
