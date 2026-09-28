@@ -38,3 +38,14 @@ A successful run writes `result.json`, `trace.json`, and `rollout.mp4`.
 ## Training
 
 The training entrypoint and its helper modules are in `pi05_scripts/`. Use a 80–96GB GPU for the original batch-size-8 training configuration. A 32GB GPU is intended only for inference and small smoke tests.
+
+## Multiple evaluation scenes
+
+`round-00001` is only one recorded initial scene. For repeated evaluation, upload a whole `rounds/` directory containing many `round-*` directories, then run:
+
+```bash
+source cloud_env.sh
+bash run_many_eval_cloud.sh "$HOME/artifacts/rounds" "$HOME/eval_many" 20
+```
+
+The third argument is an optional maximum number of scenes; use `0` to evaluate all scenes. Each scene gets its own output directory and `summary.tsv` records completed runs and final success.
