@@ -42,10 +42,13 @@ def main():
     from three_bag_round import ThreeBagRound
     from domain_randomization import AppearanceRandomizer
     from full_domain_config import sample_config
-    cfg=sample_config(ROOT/'configs/scene.yaml',a.output_dir,a.seed,yaw_range=90.,randomize_contact=False)
-    cfg_data=relocate_paths(yaml.safe_load(Path(cfg).read_text()))
     if a.known_round:
         cfg_data=relocate_paths(yaml.safe_load((a.known_round/'run/scene.yaml').read_text()))
+    else:
+        # Random-evaluation mode starts from the calibrated base scene.  The
+        # ThreeBagRound sampler below changes only object positions and yaws.
+        cfg_data=relocate_paths(yaml.safe_load((ROOT/'configs/scene.yaml').read_text()))
+    if a.known_round:
         for box in cfg_data['boxes']:
             if box.get('wrapper_visual'):
                 box['wrapper_visual']['texture']=str((a.known_round/Path(box['wrapper_visual']['texture']).name).resolve())
@@ -66,7 +69,8 @@ def main():
         env.settle_seconds=0.0
     home=env.episode_start_states()[0]
     region=env.config['box_randomization']['region_xy_cm_from_left_bottom']
-    manager=ThreeBagRound(env,np.random.default_rng(a.seed),region,90.,home,None)
+    yaw_jitter=float(cfg_data.get('box_randomization', {}).get('yaw_jitter_deg', 25.0))
+    manager=ThreeBagRound(env,np.random.default_rng(a.seed),region,yaw_jitter,home,None)
     if not a.known_round:
         _,_,_,info=manager.begin_pick();obs=env.observation()
     if a.known_round:
