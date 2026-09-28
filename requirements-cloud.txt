@@ -1,0 +1,6 @@
+numpy
+pyyaml
+opencv-python-headless
+pyarrow
+mujoco
+orbax-checkpoint

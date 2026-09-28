@@ -7,7 +7,7 @@ import train_o10_pi05_success_only_jax as pipeline
 import train_o10_chunked as streaming
 import train_o10_left_success_jax_bs4 as runner
 
-pipeline.SOURCE = Path('/workspace/shared/mujoco_tissue_scene/outputs/tissue_pick_place_adaptive_grasps_494_20260921/dataset')
+pipeline.SOURCE = Path(__import__('os').environ.get('SIM494_DATASET', '/workspace/shared/mujoco_tissue_scene/outputs/tissue_pick_place_adaptive_grasps_494_20260921/dataset'))
 pipeline.ASSET_ID = 'o10_sim_adaptive_494eps'
 original_factory = pipeline.make_config
 

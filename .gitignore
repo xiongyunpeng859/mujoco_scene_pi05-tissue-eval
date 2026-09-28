@@ -1,0 +1,12 @@
+checkpoints/
+models/
+outputs/
+logs/
+*.mp4
+*.tar
+*.tar.gz
+*.safetensors
+*.ckpt
+__pycache__/
+*.pyc
+.env

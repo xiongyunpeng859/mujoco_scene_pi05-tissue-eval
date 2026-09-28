@@ -6,7 +6,7 @@ import subprocess
 import yaml
 
 ROOT=Path(__file__).resolve().parent
-PROJECT=Path('/workspace/users/fmc3-6-workspace/pi0.5_recap')
+PROJECT=Path(__import__('os').environ.get('PI05_PROJECT_ROOT', str(Path(__file__).resolve().parents[1])))
 CHECKPOINT=Path('/home/fmc3-6/workspace/shared/new_program_qiuzhi/output/sim_to_real_bs8_chunked_20260923/sim_model/20000')
 
 def main():
@@ -77,7 +77,7 @@ def main():
     (a.output_dir/'initial.json').write_text(json.dumps(info,indent=2))
     np.savez(a.output_dir/'initial_observation.npz',state=obs['observation.state'],
              top=obs['observation.images.top'],left=obs['observation.images.left'])
-    worker_env=dict(os.environ,PYTHONPATH='/workspace/shared/openpi_jax/src:'+str(PROJECT/'scripts'),
+    worker_env=dict(os.environ,PYTHONPATH=os.environ.get('OPENPI_ROOT', '/workspace/shared/openpi_jax')+'/src:'+str(PROJECT/'pi05_scripts'),
                     XLA_PYTHON_CLIENT_PREALLOCATE='false',JAX_PLATFORMS='cuda',POLICY_TEST_SEED=str(a.seed))
     worker=subprocess.Popen(['/opt/miniconda3/envs/openpi-jax-o10/bin/python','-u',str(Path(__file__).resolve()),
           '--policy-worker',str(a.checkpoint)],stdin=subprocess.PIPE,stdout=subprocess.PIPE,
