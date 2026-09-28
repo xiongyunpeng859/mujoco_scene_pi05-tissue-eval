@@ -8,7 +8,7 @@ import yaml
 _REPO_ROOT=Path(__file__).resolve().parents[1]
 ROOT=_REPO_ROOT/'mujoco_tissue_scene' if (_REPO_ROOT/'mujoco_tissue_scene').is_dir() else Path(__file__).resolve().parent
 PROJECT=Path(__import__('os').environ.get('PI05_PROJECT_ROOT', str(Path(__file__).resolve().parents[1])))
-CHECKPOINT=Path('/home/fmc3-6/workspace/shared/new_program_qiuzhi/output/sim_to_real_bs8_chunked_20260923/sim_model/20000')
+CHECKPOINT=Path(os.environ.get('CHECKPOINT', '/tmp/checkpoint'))
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--checkpoint',type=Path,default=CHECKPOINT)
@@ -24,6 +24,19 @@ def main():
     os.environ.update(MUJOCO_GL='egl',HF_HUB_OFFLINE='1',TRANSFORMERS_OFFLINE='1',WANDB_MODE='disabled')
     import mujoco
     from sim_env import TissueSceneEnv
+    def relocate_paths(value):
+        if isinstance(value, dict): return {k: relocate_paths(v) for k, v in value.items()}
+        if isinstance(value, list): return [relocate_paths(v) for v in value]
+        if isinstance(value, str):
+            replacements = {
+                '/workspace/shared/o10-openpi-demo/arm-hand-teleop-o10-openpi-demo-stable/qiuzhi/lerobot_play_1.0.4/x86/noble/lerobot_play-1.0.4-py3-none-any/lerobot_play/urdf/play_e2/urdf/play_e2.urdf': os.environ.get('O10_ARM_URDF', ''),
+                '/workspace/shared/o10-openpi-demo/arm-hand-teleop-o10-openpi-demo-stable/qiuzhi/lerobot_play_1.0.4/x86/noble/lerobot_play-1.0.4-py3-none-any/lerobot_play/urdf/play_e2/meshes': os.environ.get('O10_ARM_MESH_DIR', ''),
+                '/workspace/shared/o10-openpi-demo/arm-hand-teleop-o10-openpi-demo-stable/yudie/vendor_sdk/Omnihand-2025-SDK-dev_xuqigui/assets/urdf/omnihand_left.urdf': os.environ.get('O10_HAND_URDF', ''),
+                '/workspace/shared/o10-openpi-demo/arm-hand-teleop-o10-openpi-demo-stable/yudie/vendor_sdk/Omnihand-2025-SDK-dev_xuqigui/assets/meshes': os.environ.get('O10_HAND_MESH_DIR', ''),
+            }
+            for old, new in replacements.items():
+                if new: value=value.replace(old, new)
+        return value
     sys.path.insert(0,str(ROOT/'reports/tools'))
     from scripted_pick_place import SUCCESS
     from three_bag_round import ThreeBagRound
@@ -32,7 +45,7 @@ def main():
     cfg=sample_config(ROOT/'configs/scene.yaml',a.output_dir,a.seed,yaw_range=90.,randomize_contact=False)
     cfg_data=yaml.safe_load(Path(cfg).read_text())
     if a.known_round:
-        cfg_data=yaml.safe_load((a.known_round/'run/scene.yaml').read_text())
+        cfg_data=relocate_paths(yaml.safe_load((a.known_round/'run/scene.yaml').read_text()))
         for box in cfg_data['boxes']:
             if box.get('wrapper_visual'):
                 box['wrapper_visual']['texture']=str((a.known_round/Path(box['wrapper_visual']['texture']).name).resolve())
@@ -45,7 +58,8 @@ def main():
     cfg_data['domain_randomization']={'enabled':True}
     rigid_cfg=a.output_dir/'rigid_eval.yaml'
     rigid_cfg.write_text(yaml.safe_dump(cfg_data,sort_keys=False));cfg=rigid_cfg
-    env=TissueSceneEnv(config_path=cfg,dataset=SUCCESS,render=True,seed=a.seed,output_dir=a.output_dir)
+    dataset_path=(a.known_round/'dataset') if a.known_round else Path(os.environ.get('SIM494_DATASET', str(SUCCESS)))
+    env=TissueSceneEnv(config_path=cfg,dataset=dataset_path,render=True,seed=a.seed,output_dir=a.output_dir)
     if a.known_round:
         env.settle_seconds=0.0
     home=env.episode_start_states()[0]
@@ -80,7 +94,7 @@ def main():
              top=obs['observation.images.top'],left=obs['observation.images.left'])
     worker_env=dict(os.environ,PYTHONPATH=os.environ.get('OPENPI_ROOT', '/workspace/shared/openpi_jax')+'/src:'+str(PROJECT/'pi05_scripts'),
                     XLA_PYTHON_CLIENT_PREALLOCATE='false',JAX_PLATFORMS='cuda',POLICY_TEST_SEED=str(a.seed))
-    worker=subprocess.Popen(['/opt/miniconda3/envs/openpi-jax-o10/bin/python','-u',str(Path(__file__).resolve()),
+    worker=subprocess.Popen([os.environ.get('PYTHON_BIN', sys.executable),'-u',str(Path(__file__).resolve()),
           '--policy-worker',str(a.checkpoint)],stdin=subprocess.PIPE,stdout=subprocess.PIPE,
           stderr=(a.output_dir/'policy.log').open('w'),text=True,env=worker_env)
     def receive():

@@ -12,3 +12,9 @@ export JAX_PLATFORMS=cuda
 export MUJOCO_GL=egl
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
+# Robot assets: point these at the extracted URDF and mesh directories.
+export O10_ARM_URDF="${O10_ARM_URDF:-$HOME/artifacts/o10_robot_assets/play_e2/urdf/play_e2.urdf}"
+export O10_ARM_MESH_DIR="${O10_ARM_MESH_DIR:-$HOME/artifacts/o10_robot_assets/play_e2/meshes}"
+export O10_HAND_URDF="${O10_HAND_URDF:-$HOME/artifacts/o10_robot_assets/omnihand_left.urdf}"
+export O10_HAND_MESH_DIR="${O10_HAND_MESH_DIR:-$HOME/artifacts/o10_robot_assets/meshes}"
+export PYTHON_BIN="${PYTHON_BIN:-$(command -v python)}"
