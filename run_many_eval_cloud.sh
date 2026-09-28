@@ -12,6 +12,7 @@ while IFS= read -r round; do
   [ "$limit" -gt 0 ] && [ "$i" -ge "$limit" ] && break
   name="$(basename "$round")"
   out="$out_root/$name"
+  mkdir -p "$out"
   echo "[${i}] evaluating $name"
   if python -u pi05_scripts/test_jax_policy_rollout.py \
       --checkpoint "$CHECKPOINT" --known-round "$round" \
