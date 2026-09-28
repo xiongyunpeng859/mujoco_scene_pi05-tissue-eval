@@ -40,8 +40,6 @@ def main():
     sys.path.insert(0,str(ROOT/'reports/tools'))
     from scripted_pick_place import SUCCESS
     from three_bag_round import ThreeBagRound
-    from domain_randomization import AppearanceRandomizer
-    from full_domain_config import sample_config
     if a.known_round:
         cfg_data=relocate_paths(yaml.safe_load((a.known_round/'run/scene.yaml').read_text()))
     else:
