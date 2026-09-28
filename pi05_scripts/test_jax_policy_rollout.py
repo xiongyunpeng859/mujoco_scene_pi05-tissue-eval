@@ -5,7 +5,8 @@ import numpy as np
 import subprocess
 import yaml
 
-ROOT=Path(__file__).resolve().parent
+_REPO_ROOT=Path(__file__).resolve().parents[1]
+ROOT=_REPO_ROOT/'mujoco_tissue_scene' if (_REPO_ROOT/'mujoco_tissue_scene').is_dir() else Path(__file__).resolve().parent
 PROJECT=Path(__import__('os').environ.get('PI05_PROJECT_ROOT', str(Path(__file__).resolve().parents[1])))
 CHECKPOINT=Path('/home/fmc3-6/workspace/shared/new_program_qiuzhi/output/sim_to_real_bs8_chunked_20260923/sim_model/20000')
 
